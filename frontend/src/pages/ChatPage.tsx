@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChatInput } from '../components/ChatInput'
 import { ContextBar } from '../components/ContextBar'
+import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
+import { DEFAULT_CORPUS_ID } from '../constants/corpora'
 import {
-  CONTEXT_LIMIT_BYTES,
-  DEFAULT_CORPUS_ID,
-  DEFAULT_TEMPERATURE,
-} from '../constants/corpora'
+  DEFAULT_MAX_BYTES_TIER,
+  DEFAULT_TEMPERATURE_TIER,
+  maxBytesForTier,
+  temperatureForTier,
+  type MaxBytesTier,
+  type TemperatureTier,
+} from '../constants/generation'
 import {
   type ChatMessage,
   fetchCorpora,
@@ -25,7 +30,12 @@ export default function ChatPage() {
   const [corpora, setCorpora] = useState<
     Array<{ id: string; label: string; enabled: boolean }>
   >([])
-  const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE)
+  const [temperatureTier, setTemperatureTier] = useState<TemperatureTier>(
+    DEFAULT_TEMPERATURE_TIER,
+  )
+  const [maxBytesTier, setMaxBytesTier] = useState<MaxBytesTier>(
+    DEFAULT_MAX_BYTES_TIER,
+  )
   const [pending, setPending] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -86,7 +96,8 @@ export default function ChatPage() {
     try {
       const response = await postChat({
         corpus_id: corpusId,
-        temperature,
+        temperature: temperatureForTier(temperatureTier),
+        max_bytes: maxBytesForTier(maxBytesTier),
         messages: nextMessages,
       })
 
@@ -145,6 +156,14 @@ export default function ChatPage() {
         </div>
       </header>
 
+      <GenerationDrawer
+        temperatureTier={temperatureTier}
+        maxBytesTier={maxBytesTier}
+        disabled={pending}
+        onTemperatureTierChange={setTemperatureTier}
+        onMaxBytesTierChange={setMaxBytesTier}
+      />
+
       <div ref={listRef} className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
         <MessageList
           messages={messages}
@@ -161,38 +180,12 @@ export default function ChatPage() {
             </p>
           )}
 
-          <label className="block space-y-2">
-            <div className="flex items-center justify-between text-xs text-zinc-500">
-              <span>Temperature</span>
-              <span className="font-mono text-zinc-400">{temperature.toFixed(1)}</span>
-            </div>
-            <input
-              type="range"
-              min={0}
-              max={2}
-              step={0.1}
-              value={temperature}
-              disabled={pending}
-              onChange={(event) => setTemperature(Number(event.target.value))}
-              className="w-full accent-emerald-500"
-            />
-            <p className="text-[11px] text-zinc-600">
-              0 = boring (most compressible). Higher = more chaotic recombination.
-            </p>
-          </label>
-
           <ChatInput
             value={draft}
             disabled={pending}
             onChange={setDraft}
             onSend={handleSend}
           />
-
-          <p className="text-center text-[11px] leading-relaxed text-zinc-600">
-            This is a compression algorithm pretending to be a chatbot. Output may
-            be incoherent. That is the point. Context limit:{' '}
-            {CONTEXT_LIMIT_BYTES.toLocaleString()} bytes.
-          </p>
         </div>
       </footer>
     </div>

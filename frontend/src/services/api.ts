@@ -29,6 +29,7 @@ export type ChatMeta = {
   bytes_generated: number
   corpus_id: string
   temperature: number
+  max_bytes: number
   context_bytes: number
   context_limit_bytes: number
 }
@@ -51,6 +52,7 @@ export async function fetchCorpora(): Promise<CorporaResponse> {
 export async function postChat(payload: {
   corpus_id: string
   temperature: number
+  max_bytes: number
   messages: ChatMessage[]
 }): Promise<ChatResponse> {
   const { data } = await api.post<ChatResponse>('/chat', payload)

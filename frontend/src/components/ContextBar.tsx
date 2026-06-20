@@ -25,10 +25,6 @@ export function ContextBar({ bytes }: ContextBarProps) {
           style={{ width: `${ratio * 100}%` }}
         />
       </div>
-      <p className="text-[11px] leading-relaxed text-zinc-600">
-        gzip only sees this many bytes of your conversation. Older messages fall
-        off the window.
-      </p>
     </div>
   )
 }

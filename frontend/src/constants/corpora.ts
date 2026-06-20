@@ -27,5 +27,3 @@ export const GZIP_VERBS = [
   'Matching',
   'Window-sliding',
 ] as const
-
-export const DEFAULT_TEMPERATURE = 0.5

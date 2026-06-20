@@ -71,7 +71,8 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 ```json
 {
   "corpus_id": "tiny-shakespeare",
-  "temperature": 0.5,
+  "temperature": 1.0,
+  "max_bytes": 512,
   "messages": [
     { "role": "user", "content": "MENENIUS:\n" }
   ]
@@ -79,6 +80,8 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 ```
 
 Messages are joined by newlines to form the gzip prompt. The last message must be from the user.
+
+`temperature` is clamped to `[1.0, 2.0]` (1.0 = greedy-most-compressible sampling floor). `max_bytes` is the generation byte budget, clamped to `[64, 512]`; generation halts on null bytes or when the budget is exhausted.
 
 **Response:**
 
@@ -89,14 +92,15 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
     "elapsed_ms": 980,
     "bytes_generated": 42,
     "corpus_id": "tiny-shakespeare",
-    "temperature": 0.5,
+    "temperature": 1.0,
+    "max_bytes": 512,
     "context_bytes": 9,
     "context_limit_bytes": 32768
   }
 }
 ```
 
-Generation is capped at 100 bytes per request with stop-sequence halting (`\n\n`, null bytes).
+Generation is capped by `max_bytes` per request (default 512) with null-byte stop halting.
 
 ## Project structure
 
