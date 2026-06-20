@@ -2,7 +2,15 @@ import os
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_from_directory
 
-from app.services.corpora import corpus_catalog, get_corpus_spec
+from app.services.corpora import (
+    DEFAULT_MAX_BYTES,
+    DEFAULT_TEMPERATURE,
+    MAX_GENERATED_BYTES,
+    MIN_GENERATED_BYTES,
+    MIN_TEMPERATURE,
+    corpus_catalog,
+    get_corpus_spec,
+)
 from app.services.gzip_lm import build_prompt, generate_reply
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -52,17 +60,40 @@ def chat():
     if not prompt.strip():
         return jsonify({"message": "prompt cannot be empty"}), 400
 
-    temperature = payload.get("temperature", 0.5)
+    temperature = payload.get("temperature", DEFAULT_TEMPERATURE)
     try:
         temperature = float(temperature)
     except (TypeError, ValueError):
         return jsonify({"message": "temperature must be a number"}), 400
+
+    if temperature < MIN_TEMPERATURE:
+        return jsonify({"message": f"temperature must be at least {MIN_TEMPERATURE}"}), 400
+
+    max_bytes = payload.get("max_bytes", DEFAULT_MAX_BYTES)
+    try:
+        max_bytes = int(max_bytes)
+    except (TypeError, ValueError):
+        return jsonify({"message": "max_bytes must be an integer"}), 400
+
+    if max_bytes < MIN_GENERATED_BYTES or max_bytes > MAX_GENERATED_BYTES:
+        return (
+            jsonify(
+                {
+                    "message": (
+                        f"max_bytes must be between {MIN_GENERATED_BYTES} "
+                        f"and {MAX_GENERATED_BYTES}"
+                    )
+                }
+            ),
+            400,
+        )
 
     try:
         result = generate_reply(
             corpus_id=corpus_id,
             messages=messages,
             temperature=temperature,
+            max_bytes=max_bytes,
         )
     except FileNotFoundError:
         return jsonify({"message": "corpus file missing on server"}), 500

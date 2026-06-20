@@ -25,5 +25,3 @@ export const GZIP_VERBS = [
   'Beam-searching',
   'Entropy-coding',
 ] as const
-
-export const DEFAULT_TEMPERATURE = 0.5
