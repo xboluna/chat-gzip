@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChatInput } from '../components/ChatInput'
 import { ContextBar } from '../components/ContextBar'
-import { GenerationControls } from '../components/GenerationControls'
+import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
 import { DEFAULT_CORPUS_ID } from '../constants/corpora'
 import {
@@ -156,6 +156,14 @@ export default function ChatPage() {
         </div>
       </header>
 
+      <GenerationDrawer
+        temperatureTier={temperatureTier}
+        maxBytesTier={maxBytesTier}
+        disabled={pending}
+        onTemperatureTierChange={setTemperatureTier}
+        onMaxBytesTierChange={setMaxBytesTier}
+      />
+
       <div ref={listRef} className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
         <MessageList
           messages={messages}
@@ -171,14 +179,6 @@ export default function ChatPage() {
               {error}
             </p>
           )}
-
-          <GenerationControls
-            temperatureTier={temperatureTier}
-            maxBytesTier={maxBytesTier}
-            disabled={pending}
-            onTemperatureTierChange={setTemperatureTier}
-            onMaxBytesTierChange={setMaxBytesTier}
-          />
 
           <ChatInput
             value={draft}
