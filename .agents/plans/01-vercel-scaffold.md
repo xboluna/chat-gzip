@@ -71,7 +71,7 @@ Mirror vibe-wordle's build pipeline:
   "name": "chat-gzip",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && mkdir -p ../app/static && cp -r dist/* ../app/static/"
+    "build": "cd frontend && npm install && npm run build && mkdir -p ../app/static ../public && cp -r dist/* ../app/static/ && cp -r dist/* ../public/"
   },
   "engines": {
     "node": "24.x"
@@ -83,16 +83,25 @@ Vercel runs this during deploy. Output lands in `app/static/` where Flask serves
 
 ### 2. `vercel.json`
 
-Identical rewrite rules to vibe-wordle—all requests hit the Flask function:
+Identical rewrite rules to vibe-wordle—all requests hit the Flask function. Also pin deployment settings so Vercel does **not** auto-detect this as a static Vite app:
 
 ```json
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build",
+  "installCommand": "pip install -r requirements.txt",
+  "functions": {
+    "api/index.py": { "maxDuration": 60 }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/(.*)", "destination": "/api/index.py" }
   ]
 }
 ```
+
+**Common deploy failure:** Vercel dashboard set to Framework = Vite with Output Directory = `public`. The Vite build writes to `frontend/dist/`, not `public/`, so the deploy fails after a successful build. vibe-wordle avoids this by using Framework = Other and an empty Output Directory.
 
 ### 3. `api/index.py`
 

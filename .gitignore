@@ -4,6 +4,7 @@ __pycache__/
 .Python
 app.db
 app/static/
+public/
 frontend/node_modules/
 frontend/dist/
 .env

@@ -2,7 +2,7 @@
   "name": "chat-gzip",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && mkdir -p ../app/static && cp -r dist/* ../app/static/"
+    "build": "cd frontend && npm install && npm run build && mkdir -p ../app/static ../public && cp -r dist/* ../app/static/ && cp -r dist/* ../public/"
   },
   "engines": {
     "node": "24.x"

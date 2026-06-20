@@ -54,7 +54,21 @@ Built assets land in `app/static/` and are served by Flask.
 
 ### Deploy (Vercel)
 
-Connect the repo to Vercel. The root `package.json` build script compiles the frontend; `vercel.json` routes all traffic through `api/index.py`.
+This is **not** a static Vite deployment. It is a **Flask serverless function** (`api/index.py`) that serves the pre-built SPA from `app/static/` (and mirrors to `public/` for Vercel's output check).
+
+**Project Settings (Dashboard → Settings → General):**
+
+| Setting | Value |
+|---------|-------|
+| Framework Preset | **Other** (not Vite) |
+| Root Directory | `.` (repo root) |
+| Build Command | `npm run build` (or leave blank — set in `vercel.json`) |
+| Output Directory | **leave empty** |
+| Install Command | `pip install -r requirements.txt` (or leave blank — set in `vercel.json`) |
+
+If Output Directory is set to `public` or `dist`, Vercel treats the project as a static frontend and the deploy fails with *"No Output Directory named public found"* even though the Vite build succeeded. vibe-wordle works because its Vercel project uses the Flask/Other preset with **no output directory** — all traffic goes through `api/index.py` via `vercel.json` rewrites.
+
+`vercel.json` sets `"framework": null` to prevent auto-detection as Vite.
 
 ## API
 
