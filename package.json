@@ -1,0 +1,10 @@
+{
+  "name": "chat-gzip",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && mkdir -p ../app/static && cp -r dist/* ../app/static/"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
