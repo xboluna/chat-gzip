@@ -15,15 +15,17 @@ export const DEFAULT_CORPUS_ID = 'tiny-shakespeare'
 
 export const CONTEXT_LIMIT_BYTES = 32768
 
+/** Gzip-themed extras merged with performative-ui's default verb pool. */
 export const GZIP_VERBS = [
+  'Beam forming',
+  'Beam-searching',
+  'Back-referencing',
   'Compressing',
   'Deflating',
-  'Matching',
-  'Back-referencing',
-  'Huffmaning',
-  'Window-sliding',
-  'Beam-searching',
   'Entropy-coding',
+  'Huffmaning',
+  'Matching',
+  'Window-sliding',
 ] as const
 
 export const DEFAULT_TEMPERATURE = 0.5
