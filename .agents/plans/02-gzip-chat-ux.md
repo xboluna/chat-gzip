@@ -1,6 +1,6 @@
 # Plan 02: Gzip chat UX and product decisions
 
-> **Status:** Decisions locked; implementation follows Plan 01 scaffold  
+> **Status:** Implemented (deploy preview pending)  
 > **Depends on:** [01-vercel-scaffold.md](./01-vercel-scaffold.md)
 
 This plan records **high-inertia product and UX choices** for the chat experience. Infrastructure defaults from Plan 01 are accepted as-is unless noted below.
@@ -259,10 +259,10 @@ The frontend can also compute this client-side for live updates as the user type
 
 After Plan 01 scaffold lands:
 
-- [ ] Add `data/tiny-shakespeare.txt` corpus file
-- [ ] Vendor `gzipt.py` → fork `generate()` with stop sequences in `app/services/gzip_lm.py`
-- [ ] Implement `GET /api/corpora` and `POST /api/chat` (include `context_bytes` in meta)
-- [ ] Install `performative-ui`; build `PendingMessage` with `WibblingSpinner`
-- [ ] Build `ChatPage` with corpus dropdown, temperature slider, context byte indicator, message list
-- [ ] Write tongue-in-cheek copy in hero + footer
+- [x] Add `data/tiny-shakespeare.txt` corpus file
+- [x] Vendor `gzipt.py` → fork `generate()` with stop sequences in `app/services/gzip_lm.py`
+- [x] Implement `GET /api/corpora` and `POST /api/chat` (include `context_bytes` in meta)
+- [x] Install `performative-ui`; build `PendingMessage` with `WibblingSpinner`
+- [x] Build `ChatPage` with corpus dropdown, temperature slider, context byte indicator, message list
+- [x] Write tongue-in-cheek copy in hero + footer
 - [ ] Verify generation completes within Vercel timeout on deploy preview

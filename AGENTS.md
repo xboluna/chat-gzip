@@ -22,7 +22,7 @@ Some decisions are **high-inertia**: they shape product behavior, UX, or deploym
 | Plan | Topic |
 |------|-------|
 | [01-vercel-scaffold.md](./.agents/plans/01-vercel-scaffold.md) | Duplicate Vibe Wordle's Vite + Flask + Vercel core so deploys work out of the box |
-| [02-gzip-chat-ux.md](./.agents/plans/02-gzip-chat-ux.md) | Chat UX, branding, corpus dropdown, temperature slider, performative-ui spinner |
+| [02-gzip-chat-ux.md](./.agents/plans/02-gzip-chat-ux.md) | Chat UX — implemented; gzip chat, performative-ui spinner, corpus dropdown |
 
 ## Reference project
 
