@@ -126,6 +126,7 @@ Custom components—no assistant-ui, no AI SDK.
 ┌─────────────────────────────────────────┐
 │  Chat with gzip          [Corpus ▼]     │
 │  "zero parameters, 32 KiB of drama"     │
+│  Context: ████░░░░░░ 842 / 32,768 bytes │
 ├─────────────────────────────────────────┤
 │  [user bubble]                          │
 │  [assistant bubble | WibblingSpinner]   │
@@ -185,7 +186,9 @@ Returns the corpus catalog (mirrors frontend constants; backend is source of tru
     "elapsed_ms": 2340,
     "bytes_generated": 100,
     "corpus_id": "tiny-shakespeare",
-    "temperature": 0.5
+    "temperature": 0.5,
+    "context_bytes": 842,
+    "context_limit_bytes": 32768
   }
 }
 ```
@@ -194,12 +197,46 @@ Server-side caps (unchanged from Plan 01): max 100 bytes generated, `beam_width=
 
 ---
 
+## Stop sequences (fork `generate()`)
+
+**Decision:** Fork vendored `gzipt.generate()` rather than post-filter only.
+
+After each committed span, check whether `prompt + generated` ends with any configured stop sequence. If so, truncate at the stop boundary and return early.
+
+| Property | Value |
+|----------|-------|
+| Default stops | `\n\n`, `\x00` |
+| API param | Optional `stop_sequences: string[]` on `POST /api/chat` (future; v1 uses defaults) |
+| Implementation | `app/services/gzip_lm.py` wraps forked `generate()` |
+| UX | Cleaner cutoffs; avoids mid-garble when gzip hits a natural paragraph break |
+
+Still apply lightweight post-filter (null bytes, runaway whitespace) as a safety net.
+
+---
+
+## Context window byte indicator
+
+**Decision:** Show context usage in the UI from v1—not deferred.
+
+gzip's effective context is the corpus window (≤32 KiB) plus the recent output tail. For chat, the **constructed prompt** (full message history the backend receives) is what matters to the user.
+
+| Property | Value |
+|----------|-------|
+| Backend | Compute `context_bytes = len(prompt_utf8)` in `POST /api/chat`; return in `meta` alongside `context_limit_bytes: 32768` |
+| Frontend | Persistent indicator below the chat header, e.g. *"Context: 842 / 32,768 bytes"* with a thin progress bar |
+| Warning | Soft highlight when usage exceeds ~80% of limit |
+| Copy | *"gzip only sees this many bytes of your conversation. Older messages fall off the window."* |
+
+The frontend can also compute this client-side for live updates as the user types (before send), but the API value is authoritative after each turn.
+
+---
+
 ## Accepted Plan 01 defaults (unchanged)
 
 | Area | Decision |
 |------|----------|
 | gzipt integration | Vendor `gzipt.py` into `app/services/` |
-| Stop words | Post-filter junk + UI disclaimer only |
+| Stop words / sequences | Fork `generate()` with stop-sequence halt + post-filter junk | See Plan 02 |
 | API state | Stateless — frontend owns message history |
 | Streaming | Wait-for-full response in v1 |
 | Default length | 100 bytes per generation |
@@ -211,11 +248,10 @@ Server-side caps (unchanged from Plan 01): max 100 bytes generated, `beam_width=
 
 | Item | Notes |
 |------|-------|
-| Context window indicator | Show user how many bytes of their history fit in gzip's 32 KiB window |
 | Additional corpora | Enable Moby Dick / enwik8 when files are curated |
-| Stop sequences | Fork `generate()` if output quality needs hard stops |
 | Streaming | SSE or chunked response if 100-byte waits feel too long |
 | `performative-ui` extras | `GradientText` for hero, `GlassCard` for chat panel—only if it serves the joke |
+| Custom stop sequences via API | User-supplied `stop_sequences` param—defaults suffice for v1 |
 
 ---
 
@@ -224,9 +260,9 @@ Server-side caps (unchanged from Plan 01): max 100 bytes generated, `beam_width=
 After Plan 01 scaffold lands:
 
 - [ ] Add `data/tiny-shakespeare.txt` corpus file
-- [ ] Vendor `gzipt.py` → `app/services/gzip_lm.py`
-- [ ] Implement `GET /api/corpora` and `POST /api/chat`
+- [ ] Vendor `gzipt.py` → fork `generate()` with stop sequences in `app/services/gzip_lm.py`
+- [ ] Implement `GET /api/corpora` and `POST /api/chat` (include `context_bytes` in meta)
 - [ ] Install `performative-ui`; build `PendingMessage` with `WibblingSpinner`
-- [ ] Build `ChatPage` with corpus dropdown, temperature slider, message list
+- [ ] Build `ChatPage` with corpus dropdown, temperature slider, context byte indicator, message list
 - [ ] Write tongue-in-cheek copy in hero + footer
 - [ ] Verify generation completes within Vercel timeout on deploy preview

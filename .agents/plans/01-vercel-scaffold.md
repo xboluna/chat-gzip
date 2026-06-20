@@ -211,11 +211,11 @@ Document:
 
 After implementing, confirm:
 
-- [ ] `cd frontend && npm run dev` + `flask run` → health check works at `localhost:5173`
-- [ ] `npm run build` → `app/static/index.html` exists
+- [x] `cd frontend && npm run dev` + `flask run` → health check works at `localhost:5173`
+- [x] `npm run build` → `app/static/index.html` exists
 - [ ] `vercel dev` or deploy preview → SPA loads, `/api/health` returns JSON
-- [ ] Client-side routing works (refresh on any path serves `index.html`)
-- [ ] No CORS errors in production (same origin)
+- [x] Client-side routing works (refresh on any path serves `index.html`)
+- [x] No CORS errors in production (same origin)
 
 ---
 
@@ -267,7 +267,7 @@ gzipt has **no built-in stop words**. Output can be garbled Shakespeare fragment
 | Corpus preprocessing | Remove stop words from corpus | Changes model behavior globally |
 | UI disclaimer + low length | Honest UX | Doesn't fix quality |
 
-**Recommendation for v1:** Post-filter obvious junk (null bytes, excessive whitespace collapse) + UI copy explaining this is a compression toy, not ChatGPT. Revisit stop sequences in Plan 02.
+**Decided:** Fork `generate()` in vendored gzipt to support **stop sequences** (e.g. `\n\n`, user-defined). Halt generation cleanly when output would contain a stop sequence—better than post-filter truncation. See Plan 02.
 
 ### Chat UI library choice
 
