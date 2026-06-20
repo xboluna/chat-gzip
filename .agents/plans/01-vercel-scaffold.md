@@ -242,7 +242,7 @@ The model's "knowledge" is whatever bytes prime gzip's 32 KiB window.
 |----------|---------|----------------|
 | Default corpus | tiny-shakespeare, Project Gutenberg excerpt, custom | **tiny-shakespeare** for v1 (small, fun, fast deploy) |
 | Corpus size | Must fit in window (≤32 KiB) | Ship one file in `data/corpus.txt` |
-| User-selectable corpus | API param / UI picker | Defer to Plan 03—adds UX and bundle-size questions |
+| User-selectable corpus | API param / UI picker | **Decided:** corpus dropdown in UI from day one; only Shakespeare enabled for now (see Plan 02) |
 | Encoding | UTF-8 | Standard; gzipt handles `errors="replace"` |
 
 ### Vendor gzipt vs pip dependency
@@ -282,7 +282,7 @@ We want **brain-dead simple**—message list, input box, send button. No threads
 | **AI Elements** | shadcn chat primitives | Coupled to Vercel AI SDK patterns |
 | **Deep Chat** | Web component, framework-agnostic | Works but adds dep for little gain |
 
-**Recommendation:** Custom `ChatWindow` + `MessageBubble` components with Tailwind/shadcn styling. If we later add streaming, consider Vercel AI SDK on the frontend with a custom adapter—or SSE from Flask.
+**Decided:** Custom `ChatWindow` + `MessageBubble` with Tailwind/shadcn styling, plus **[performative-ui](https://vorpus.github.io/performativeUI/) `WibblingSpinner`** for the loading state (gzip-themed verb pool). See Plan 02 for details.
 
 ### API shape for chat
 
@@ -310,9 +310,15 @@ After this scaffold ships:
 
 ---
 
-## Open questions (resolve before or during Plan 02)
+## Open questions — resolved (2025-06-20)
 
-1. **Branding / tone** — Is this a demo, a game, or a sincere "talk to gzip" experience? Affects copy and length defaults.
-2. **Temperature exposure** — Show a slider in UI or hide behind "creative mode"?
-3. **Multi-turn coherence** — gzip has no memory beyond the prompt we construct. Do we show the user their "context window" bytes?
-4. **Vercel plan tier** — Hobby 10s timeout may be too tight; confirm account limits before tuning defaults.
+See [02-gzip-chat-ux.md](./02-gzip-chat-ux.md) for full product/UX spec. Summary:
+
+| Question | Decision |
+|----------|----------|
+| **Branding / tone** | Tongue-in-cheek, fun, openly admits this is a compression toy—not a real LLM |
+| **Temperature** | Visible slider in the chat controls (not hidden) |
+| **Corpus selection** | Dropdown in UI from v1; only **Tiny Shakespeare** enabled; future corpora stubbed in config |
+| **Loading UX** | `performative-ui` `WibblingSpinner` with gzip-themed verbs + live elapsed-ms info |
+| **Multi-turn coherence** | Stateless API (frontend sends full history); show a lightweight "context bytes" indicator in a later pass—not blocking v1 |
+| **Vercel plan tier** | Keep conservative defaults (100-byte cap, `beam_width=16`); tune after first deploy |
