@@ -21,8 +21,6 @@ export const MAX_BYTES_TIERS = {
   snippet: 128,
   paragraph: 256,
   stanza: 512,
-  chapter: 1024,
-  tome: 2048,
 } as const
 
 export type MaxBytesTier = keyof typeof MAX_BYTES_TIERS

@@ -3,10 +3,7 @@ import { ChatInput } from '../components/ChatInput'
 import { ContextBar } from '../components/ContextBar'
 import { GenerationControls } from '../components/GenerationControls'
 import { MessageList } from '../components/MessageList'
-import {
-  CONTEXT_LIMIT_BYTES,
-  DEFAULT_CORPUS_ID,
-} from '../constants/corpora'
+import { DEFAULT_CORPUS_ID } from '../constants/corpora'
 import {
   DEFAULT_MAX_BYTES_TIER,
   DEFAULT_TEMPERATURE_TIER,
@@ -189,12 +186,6 @@ export default function ChatPage() {
             onChange={setDraft}
             onSend={handleSend}
           />
-
-          <p className="text-center text-[11px] leading-relaxed text-zinc-600">
-            This is a compression algorithm pretending to be a chatbot. Output may
-            be incoherent. That is the point. Context limit:{' '}
-            {CONTEXT_LIMIT_BYTES.toLocaleString()} bytes.
-          </p>
         </div>
       </footer>
     </div>

@@ -35,13 +35,11 @@ const MAX_BYTES_OPTIONS = Object.entries(MAX_BYTES_TIERS).map(([key, bytes]) => 
   key,
   label: key,
   color:
-    bytes >= 2048
+    bytes >= 512
       ? ('ludicrous' as const)
-      : bytes >= 1024
+      : bytes >= 256
         ? ('rainbow' as const)
-        : bytes >= 512
-          ? ('glow' as const)
-          : 'var(--pui-temp-medium)',
+        : 'var(--pui-temp-medium)',
 }))
 
 export function GenerationControls({
@@ -70,9 +68,6 @@ export function GenerationControls({
             onChange={(key) => onTemperatureTierChange(key as TemperatureTier)}
           />
         </div>
-        <p className="mt-2 text-[11px] text-zinc-600">
-          1.0 = most compressible beams. Higher tiers sample wilder recombinations.
-        </p>
       </div>
 
       <div className={disabled ? 'pointer-events-none opacity-60' : undefined}>
@@ -92,10 +87,6 @@ export function GenerationControls({
             onChange={(key) => onMaxBytesTierChange(key as MaxBytesTier)}
           />
         </div>
-        <p className="mt-2 text-[11px] text-zinc-600">
-          Byte budget before the hard cap. Generation runs until this limit or a
-          null-byte stop sequence.
-        </p>
       </div>
     </div>
   )

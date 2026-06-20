@@ -81,7 +81,7 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 
 Messages are joined by newlines to form the gzip prompt. The last message must be from the user.
 
-`temperature` is clamped to `[1.0, 2.0]` (1.0 = greedy-most-compressible sampling floor). `max_bytes` is the generation byte budget, clamped to `[64, 2048]`; generation halts on null bytes or when the budget is exhausted.
+`temperature` is clamped to `[1.0, 2.0]` (1.0 = greedy-most-compressible sampling floor). `max_bytes` is the generation byte budget, clamped to `[64, 512]`; generation halts on null bytes or when the budget is exhausted.
 
 **Response:**
 
