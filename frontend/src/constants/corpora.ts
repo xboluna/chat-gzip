@@ -16,8 +16,6 @@ export const CORPUS_OPTIONS: CorpusOption[] = [
   { id: 'tech-twitter', label: 'Tech Twitter', enabled: true },
   { id: 'cocktails', label: 'Cocktail Recipes', enabled: true },
   { id: 'sports-commentary', label: 'Sports Commentary', enabled: true },
-  { id: 'moby-dick', label: 'Moby Dick (excerpt)', enabled: false },
-  { id: 'enwik8', label: 'enwik8 (excerpt)', enabled: false },
 ]
 
 export const DEFAULT_CORPUS_ID = 'tiny-shakespeare'

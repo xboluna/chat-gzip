@@ -32,8 +32,6 @@ CORPORA: tuple[CorpusSpec, ...] = (
     CorpusSpec("tech-twitter", "Tech Twitter", "tech-twitter.txt", True),
     CorpusSpec("cocktails", "Cocktail Recipes", "cocktails.txt", True),
     CorpusSpec("sports-commentary", "Sports Commentary", "sports-commentary.txt", True),
-    CorpusSpec("moby-dick", "Moby Dick (excerpt)", "moby-dick.txt", False),
-    CorpusSpec("enwik8", "enwik8 (excerpt)", "enwik8.txt", False),
 )
 
 DEFAULT_CORPUS_ID = "tiny-shakespeare"
