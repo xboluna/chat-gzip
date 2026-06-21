@@ -141,6 +141,7 @@ chat-gzip/
 │   ├── tiny-shakespeare.txt  # Default corpus
 │   └── …                     # See scripts/build_corpora.py for other corpus sources
 ├── frontend/                 # React chat UI (suggestion bubbles, chat input, message list)
+│   ├── public/               # Static assets (favicon, corpus icons, web manifest)
 │   └── src/
 │       ├── components/info/   # "What's happening?" modal + interactive explainer graphics
 │       └── utils/             # lz77.ts (illustrative scoring) + beamSearch.ts
