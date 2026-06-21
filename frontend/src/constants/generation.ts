@@ -18,15 +18,25 @@ export function temperatureForTier(tier: string): number {
 
 /** Maps tier keys to the byte cap passed to gzip generation (stop sequences still apply). */
 export const MAX_BYTES_TIERS = {
-  snippet: 128,
-  paragraph: 256,
-  stanza: 512,
+  phrase: 32,
+  snippet: 64,
+  paragraph: 128,
+  stanza: 256,
+  chapter: 512,
+  tome: 1048,
 } as const
 
 export type MaxBytesTier = keyof typeof MAX_BYTES_TIERS
 
 export const DEFAULT_MAX_BYTES_TIER: MaxBytesTier = 'snippet'
 
+/** Show a timeout warning when output length is at or above this byte cap. */
+export const MAX_BYTES_TIMEOUT_WARNING = 512
+
 export function maxBytesForTier(tier: string): number {
   return MAX_BYTES_TIERS[tier as MaxBytesTier] ?? MAX_BYTES_TIERS.snippet
+}
+
+export function shouldWarnMaxBytesTimeout(tier: MaxBytesTier): boolean {
+  return MAX_BYTES_TIERS[tier] >= MAX_BYTES_TIMEOUT_WARNING
 }
