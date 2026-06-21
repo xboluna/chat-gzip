@@ -5,6 +5,8 @@ import { ContextDrawer } from '../components/ContextDrawer'
 import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
 import { SuggestionBubbles } from '../components/SuggestionBubbles'
+import { InfoButton } from '../components/info/InfoButton'
+import { InfoModal } from '../components/info/InfoModal'
 import {
   CORPUS_BYTE_LENGTHS,
   CORPUS_DESCRIPTIONS,
@@ -42,6 +44,7 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [infoOpen, setInfoOpen] = useState(false)
 
   const listRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -189,16 +192,19 @@ export default function ChatPage() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <header className="shrink-0 border-b border-zinc-800 px-4 py-4 sm:px-6">
-        <div className="mx-auto w-full max-w-3xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
-            chat-gzip
-          </p>
-          <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
-            The only LLM with zero parameters
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            Powered by DEFLATE beam search. Not powered by GPUs.
-          </p>
+        <div className="mx-auto flex w-full max-w-3xl items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="font-mono text-xs tracking-[0.2em] text-emerald-400 [font-variant:small-caps]">
+              Chat GZip
+            </p>
+            <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
+              A language model with zero parameters
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              Powered by DEFLATE beam search.
+            </p>
+          </div>
+          <InfoButton onClick={() => setInfoOpen(true)} />
         </div>
       </header>
 
@@ -259,6 +265,8 @@ export default function ChatPage() {
           />
         </div>
       </footer>
+
+      <InfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
     </div>
   )
 }
