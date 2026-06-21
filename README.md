@@ -64,7 +64,7 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 |--------|------|-------------|
 | `GET` | `/api/health` | `{ "status": "ok" }` |
 | `GET` | `/api/corpora` | Corpus catalog (`description`, `byte_length` per corpus) |
-| `POST` | `/api/chat` | Generate assistant continuation |
+| `POST` | `/api/chat` | Generate assistant continuation (JSON or SSE with `?stream=1`) |
 
 ### `POST /api/chat`
 
@@ -103,6 +103,22 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
 ```
 
 Generation is capped by `max_bytes` per request (default 64 / snippet) with null-byte stop halting. Lengths at or above 512 bytes may time out.
+
+### `POST /api/chat?stream=1`
+
+Same request body as above. Returns **Server-Sent Events** (`text/event-stream`) with one beam-search span per `chunk` event:
+
+```
+event: chunk
+data: {"type":"chunk","content":"Thou "}
+
+event: done
+data: {"type":"done","meta":{"elapsed_ms":980,"bytes_generated":42,...}}
+```
+
+On failure after the stream starts, the server emits `event: error` with `{"message":"..."}`. The non-streaming JSON response remains available at `POST /api/chat` without the query param.
+
+The chat UI streams by default via `postChatStream()` in `frontend/src/services/api.ts`.
 
 ## Project structure
 

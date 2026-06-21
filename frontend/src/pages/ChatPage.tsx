@@ -25,7 +25,7 @@ import {
   type ChatMessage,
   fetchCorpora,
   getApiErrorMessage,
-  postChat,
+  postChatStream,
 } from '../services/api'
 import {
   buildPromptFromMessages,
@@ -44,10 +44,12 @@ export default function ChatPage() {
     DEFAULT_MAX_BYTES_TIER,
   )
   const [pending, setPending] = useState(false)
+  const [awaitingFirstChunk, setAwaitingFirstChunk] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const listRef = useRef<HTMLDivElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     fetchCorpora()
@@ -112,7 +114,13 @@ export default function ChatPage() {
     if (node) {
       node.scrollTop = node.scrollHeight
     }
-  }, [messages, pending, draft])
+  }, [messages, awaitingFirstChunk, draft])
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort()
+    }
+  }, [])
 
   const handleSend = async () => {
     const text = draft.trim()
@@ -120,33 +128,66 @@ export default function ChatPage() {
       return
     }
 
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
     const nextMessages: ChatMessage[] = [
       ...messages,
       { role: 'user', content: text },
     ]
+    const streamingMessages: ChatMessage[] = [
+      ...nextMessages,
+      { role: 'assistant', content: '' },
+    ]
 
-    setMessages(nextMessages)
+    setMessages(streamingMessages)
     setDraft('')
     setError(null)
     setPending(true)
+    setAwaitingFirstChunk(true)
     setPendingStartedAt(Date.now())
 
     try {
-      const response = await postChat({
-        corpus_id: corpusId,
-        temperature: temperatureForTier(temperatureTier),
-        max_bytes: maxBytesForTier(maxBytesTier),
-        messages: nextMessages,
-      })
-
-      setMessages([
-        ...nextMessages,
-        { role: 'assistant', content: response.content },
-      ])
+      await postChatStream(
+        {
+          corpus_id: corpusId,
+          temperature: temperatureForTier(temperatureTier),
+          max_bytes: maxBytesForTier(maxBytesTier),
+          messages: nextMessages,
+        },
+        {
+          onChunk: (content) => {
+            setAwaitingFirstChunk(false)
+            setMessages((current) => {
+              const last = current[current.length - 1]
+              if (!last || last.role !== 'assistant') {
+                return current
+              }
+              return [
+                ...current.slice(0, -1),
+                { ...last, content: last.content + content },
+              ]
+            })
+          },
+          onDone: () => {
+            // Meta is available for future UI (timing, byte counts).
+          },
+        },
+        controller.signal,
+      )
     } catch (sendError) {
+      if (controller.signal.aborted) {
+        return
+      }
+      setMessages(nextMessages)
       setError(getApiErrorMessage(sendError))
     } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null
+      }
       setPending(false)
+      setAwaitingFirstChunk(false)
       setPendingStartedAt(null)
     }
   }
@@ -191,7 +232,7 @@ export default function ChatPage() {
       <div ref={listRef} className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
         <MessageList
           messages={messages}
-          pending={pending}
+          awaitingFirstChunk={awaitingFirstChunk}
           pendingStartedAt={pendingStartedAt}
           corpusLabel={corpusLabel}
         />

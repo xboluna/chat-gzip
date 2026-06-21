@@ -8,6 +8,7 @@ from __future__ import annotations
 import math
 import random
 import zlib
+from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 
 GZIP_WINDOW = 32768
@@ -51,7 +52,7 @@ def _truncate_at_stop(text: bytes, stop_sequences: tuple[bytes, ...]) -> tuple[b
     return text[:earliest], True
 
 
-def generate(
+def generate_stream(
     corpus: bytes,
     prompt: bytes,
     length: int,
@@ -66,8 +67,8 @@ def generate(
     alphabet: tuple[int, ...] | None = None,
     seed: int | None = None,
     stop_sequences: tuple[bytes, ...] = (b"\n\n", b"\x00"),
-) -> bytes:
-    """Generate ``length`` bytes continuing ``prompt``, primed by ``corpus``.
+) -> Iterator[bytes]:
+    """Yield each committed span while generating up to ``length`` bytes.
 
     After each committed span, halts early if ``prompt + generated`` ends with
     (or contains) any configured stop sequence.
@@ -100,10 +101,15 @@ def generate(
                 weights = [math.exp(-(L - best) / temperature) for L in beam_lens]
                 span = rng.choices(beams, weights=weights, k=1)[0]
 
+            prev_len = len(out)
             candidate = bytes(out) + span
             truncated, stopped = _truncate_at_stop(candidate, stop_sequences)
             out.clear()
             out.extend(truncated)
+
+            new_bytes = bytes(out[prev_len:])
+            if new_bytes:
+                yield new_bytes
 
             if stopped:
                 break
@@ -114,4 +120,39 @@ def generate(
         if pool is not None:
             pool.shutdown(wait=False)
 
+
+def generate(
+    corpus: bytes,
+    prompt: bytes,
+    length: int,
+    *,
+    window: int = DEFAULT_WINDOW,
+    horizon: int = 24,
+    beam_width: int = 32,
+    temperature: float = 0.5,
+    tail: int = 80,
+    level: int = 9,
+    workers: int = 1,
+    alphabet: tuple[int, ...] | None = None,
+    seed: int | None = None,
+    stop_sequences: tuple[bytes, ...] = (b"\n\n", b"\x00"),
+) -> bytes:
+    """Generate ``length`` bytes continuing ``prompt``, primed by ``corpus``."""
+    out = bytearray()
+    for chunk in generate_stream(
+        corpus,
+        prompt,
+        length,
+        window=window,
+        horizon=horizon,
+        beam_width=beam_width,
+        temperature=temperature,
+        tail=tail,
+        level=level,
+        workers=workers,
+        alphabet=alphabet,
+        seed=seed,
+        stop_sequences=stop_sequences,
+    ):
+        out.extend(chunk)
     return bytes(out[:length])

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 import time
-from typing import Any
+from collections.abc import Iterator
+from typing import Any, Literal, TypedDict
 
 from app.services import gzipt
 from app.services.corpora import (
@@ -34,6 +35,74 @@ def sanitize_output(text: str) -> str:
     cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
     return cleaned
+
+
+class ChatChunkEvent(TypedDict):
+    type: Literal["chunk"]
+    content: str
+
+
+class ChatDoneEvent(TypedDict):
+    type: Literal["done"]
+    meta: dict[str, Any]
+
+
+ChatStreamEvent = ChatChunkEvent | ChatDoneEvent
+
+
+def generate_reply_stream(
+    *,
+    corpus_id: str,
+    messages: list[dict[str, Any]],
+    temperature: float = DEFAULT_TEMPERATURE,
+    max_bytes: int = DEFAULT_MAX_BYTES,
+) -> Iterator[ChatStreamEvent]:
+    prompt_text = build_prompt(messages)
+    prompt_bytes = prompt_text.encode("utf-8", errors="replace")
+    context_bytes = len(prompt_bytes)
+
+    corpus = load_corpus_bytes(corpus_id)
+    clamped_temp = max(MIN_TEMPERATURE, min(2.0, float(temperature)))
+    clamped_max_bytes = max(
+        MIN_GENERATED_BYTES,
+        min(MAX_GENERATED_BYTES, int(max_bytes)),
+    )
+
+    started = time.perf_counter()
+    raw = bytearray()
+    last_sanitized_len = 0
+
+    for span in gzipt.generate_stream(
+        corpus,
+        prompt_bytes,
+        clamped_max_bytes,
+        beam_width=DEFAULT_BEAM_WIDTH,
+        workers=DEFAULT_WORKERS,
+        temperature=clamped_temp,
+        stop_sequences=DEFAULT_STOP_SEQUENCES,
+    ):
+        raw.extend(span)
+        sanitized = sanitize_output(raw.decode("utf-8", errors="replace"))
+        if len(sanitized) > last_sanitized_len:
+            yield {
+                "type": "chunk",
+                "content": sanitized[last_sanitized_len:],
+            }
+            last_sanitized_len = len(sanitized)
+
+    elapsed_ms = int((time.perf_counter() - started) * 1000)
+    yield {
+        "type": "done",
+        "meta": {
+            "elapsed_ms": elapsed_ms,
+            "bytes_generated": len(raw),
+            "corpus_id": corpus_id,
+            "temperature": clamped_temp,
+            "max_bytes": clamped_max_bytes,
+            "context_bytes": context_bytes,
+            "context_limit_bytes": CONTEXT_LIMIT_BYTES,
+        },
+    }
 
 
 def generate_reply(
