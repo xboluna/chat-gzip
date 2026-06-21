@@ -66,7 +66,7 @@ export const CORPUS_OPTIONS: CorpusOption[] = [
   },
   {
     id: 'copypasta',
-    label: 'navy seal energy',
+    label: 'Copypasta',
     description: CORPUS_DESCRIPTIONS.copypasta,
     enabled: true,
     byteLength: CORPUS_BYTE_LENGTHS.copypasta,

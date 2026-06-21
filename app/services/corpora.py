@@ -56,7 +56,7 @@ CORPORA: tuple[CorpusSpec, ...] = (
     ),
     CorpusSpec(
         "copypasta",
-        "navy seal energy",
+        "Copypasta",
         "copypasta.txt",
         True,
         "Navy SEAL copypasta and meme-war dispatch logs. Maximum entropy, zero coherence.",
