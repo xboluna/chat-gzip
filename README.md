@@ -100,7 +100,7 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
 }
 ```
 
-Generation is capped by `max_bytes` per request (default 64 / snippet) with null-byte stop halting. Lengths at or above 512 bytes may time out on serverless deploys.
+Generation is capped by `max_bytes` per request (default 64 / snippet) with null-byte stop halting. Lengths at or above 512 bytes may time out.
 
 ## Project structure
 

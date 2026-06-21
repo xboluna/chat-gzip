@@ -92,7 +92,7 @@ export function GenerationControls({
         </div>
         {shouldWarnMaxBytesTimeout(maxBytesTier) ? (
           <p className="mt-2 text-xs text-amber-400/90">
-            Generation may time out at this length on serverless deploys.
+            Generation may time out at this length.
           </p>
         ) : null}
       </div>
