@@ -7,15 +7,15 @@ export type CorpusOption = {
 /** UI catalog — backend `/api/corpora` is authoritative for loadable corpora. */
 export const CORPUS_OPTIONS: CorpusOption[] = [
   { id: 'tiny-shakespeare', label: 'Tiny Shakespeare', enabled: true },
-  { id: 'typescript-errors', label: 'Tiny TypeScript', enabled: true },
-  { id: 'http-status', label: 'Tiny HTTP', enabled: true },
-  { id: 'movie-quotes', label: 'Tiny Hollywood', enabled: true },
-  { id: 'genz-slang', label: 'Tiny Gen Z', enabled: true },
-  { id: 'vc-glossary', label: 'Tiny Term Sheet', enabled: true },
-  { id: 'copypasta', label: 'Tiny Copypasta', enabled: true },
-  { id: 'tech-twitter', label: 'Tiny Hot Takes', enabled: true },
-  { id: 'cocktails', label: 'Tiny Bar Cart', enabled: true },
-  { id: 'sports-commentary', label: 'Tiny Sportsdesk', enabled: true },
+  { id: 'typescript-errors', label: 'beep boop broken', enabled: true },
+  { id: 'http-status', label: 'server said no', enabled: true },
+  { id: 'movie-quotes', label: 'and the oscar goes to', enabled: true },
+  { id: 'genz-slang', label: 'young kids slang', enabled: true },
+  { id: 'vc-glossary', label: 'raise or die', enabled: true },
+  { id: 'copypasta', label: 'navy seal energy', enabled: true },
+  { id: 'tech-twitter', label: 'unpopular opinion dot com', enabled: true },
+  { id: 'cocktails', label: 'shaken not stirred', enabled: true },
+  { id: 'sports-commentary', label: 'GOOOAL', enabled: true },
 ]
 
 export const DEFAULT_CORPUS_ID = 'tiny-shakespeare'
