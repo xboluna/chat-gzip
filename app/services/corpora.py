@@ -26,14 +26,11 @@ class CorpusSpec:
 
 CORPORA: tuple[CorpusSpec, ...] = (
     CorpusSpec("tiny-shakespeare", "Tiny Shakespeare", "tiny-shakespeare.txt", True),
-    CorpusSpec("typescript-errors", "beep boop broken", "typescript-errors.txt", True),
     CorpusSpec("http-status", "HTTP talk", "http-status.txt", True),
     CorpusSpec("movie-quotes", "and the oscar goes to", "movie-quotes.txt", True),
-    CorpusSpec("genz-slang", "young kids slang", "genz-slang.txt", True),
     CorpusSpec("vc-glossary", "VC slop", "vc-glossary.txt", True),
     CorpusSpec("copypasta", "navy seal energy", "copypasta.txt", True),
-    CorpusSpec("tech-twitter", "unpopular opinion dot com", "tech-twitter.txt", True),
-    CorpusSpec("cocktails", "shaken not stirred", "cocktails.txt", True),
+    CorpusSpec("tech-twitter", "twitterverse", "tech-twitter.txt", True),
     CorpusSpec("sports-commentary", "GOOOAL", "sports-commentary.txt", True),
 )
 

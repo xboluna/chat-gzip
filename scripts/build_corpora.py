@@ -86,19 +86,6 @@ def write_corpus(filename: str, text: str) -> int:
     return path.stat().st_size
 
 
-def build_typescript_errors() -> str:
-    url = "https://raw.githubusercontent.com/microsoft/TypeScript/main/src/compiler/diagnosticMessages.json"
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        data = json.load(resp)
-    lines: list[str] = ["TypeScript Compiler Errors", ""]
-    for message, info in sorted(data.items(), key=lambda item: item[1].get("code", 0)):
-        code = info.get("code")
-        if code is None:
-            continue
-        lines.append(f"TS{code}: {message}")
-    return "\n".join(lines)
-
-
 def build_http_status() -> str:
     url = "https://www.iana.org/assignments/http-status-codes/http-status-codes.txt"
     with urllib.request.urlopen(url, timeout=30) as resp:
@@ -133,20 +120,6 @@ def build_movie_quotes() -> str:
         year = row.get("year", "").strip()
         if quote:
             lines.append(f'"{quote}" — {movie} ({year})')
-    return "\n".join(lines)
-
-
-def build_genz_slang() -> str:
-    url = "https://raw.githubusercontent.com/kaspercools/genz-dataset/main/genz_slang.csv"
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        content = resp.read().decode("utf-8")
-    reader = csv.DictReader(io.StringIO(content))
-    lines: list[str] = ["Gen Z / Internet Slang", ""]
-    for row in reader:
-        keyword = row.get("keyword", "").strip()
-        description = row.get("description", "").strip()
-        if keyword and description:
-            lines.append(f"{keyword} | {description}")
     return "\n".join(lines)
 
 
@@ -193,31 +166,6 @@ def build_copypasta() -> str:
     url = "https://raw.githubusercontent.com/louisabraham/copypasta-data/master/copypasta.txt"
     with urllib.request.urlopen(url, timeout=30) as resp:
         return resp.read().decode("utf-8", errors="replace")
-
-
-def build_cocktails() -> str:
-    url = "https://raw.githubusercontent.com/micahcochran/json-cookbook/master/cookbook-100.json"
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        recipes = json.load(resp)
-    lines: list[str] = ["Cocktail Recipes", ""]
-    for recipe in recipes:
-        name = recipe.get("name", "Untitled")
-        lines.append(f"# {name}")
-        for ingredient in recipe.get("recipeIngredient", []):
-            lines.append(f"- {ingredient}")
-        instructions = recipe.get("recipeInstructions", [])
-        if isinstance(instructions, list):
-            for step in instructions:
-                if isinstance(step, dict):
-                    text = step.get("text", "")
-                else:
-                    text = str(step)
-                if text.strip():
-                    lines.append(text.strip())
-        elif isinstance(instructions, str) and instructions.strip():
-            lines.append(instructions.strip())
-        lines.append("")
-    return "\n".join(lines)
 
 
 def build_tech_twitter() -> str:
@@ -274,14 +222,11 @@ def build_sports_commentary() -> str:
 def main() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     builders = [
-        ("typescript-errors.txt", build_typescript_errors),
         ("http-status.txt", build_http_status),
         ("movie-quotes.txt", build_movie_quotes),
-        ("genz-slang.txt", build_genz_slang),
         ("vc-glossary.txt", build_vc_glossary),
         ("copypasta.txt", build_copypasta),
         ("tech-twitter.txt", build_tech_twitter),
-        ("cocktails.txt", build_cocktails),
         ("sports-commentary.txt", build_sports_commentary),
     ]
     for filename, builder in builders:
