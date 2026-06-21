@@ -5,18 +5,20 @@ type MessageListProps = {
   messages: ChatMessage[]
   pending: boolean
   pendingStartedAt: number | null
+  corpusLabel: string
 }
 
 export function MessageList({
   messages,
   pending,
   pendingStartedAt,
+  corpusLabel,
 }: MessageListProps) {
   if (messages.length === 0 && !pending) {
     return (
       <div className="flex flex-1 items-center justify-center px-4 py-12 text-center text-sm leading-relaxed text-zinc-500">
         Say something. gzip will continue it by finding the most compressible
-        bytes in Tiny Shakespeare.
+        bytes in {corpusLabel}.
       </div>
     )
   }

@@ -23,15 +23,15 @@ class CorpusSpec:
 
 CORPORA: tuple[CorpusSpec, ...] = (
     CorpusSpec("tiny-shakespeare", "Tiny Shakespeare", "tiny-shakespeare.txt", True),
-    CorpusSpec("typescript-errors", "TypeScript Errors", "typescript-errors.txt", True),
-    CorpusSpec("http-status", "HTTP Status Codes", "http-status.txt", True),
-    CorpusSpec("movie-quotes", "Movie Quotes", "movie-quotes.txt", True),
-    CorpusSpec("genz-slang", "Gen Z Slang", "genz-slang.txt", True),
-    CorpusSpec("vc-glossary", "Startup / VC Glossary", "vc-glossary.txt", True),
-    CorpusSpec("copypasta", "Reddit Copypasta", "copypasta.txt", True),
-    CorpusSpec("tech-twitter", "Tech Twitter", "tech-twitter.txt", True),
-    CorpusSpec("cocktails", "Cocktail Recipes", "cocktails.txt", True),
-    CorpusSpec("sports-commentary", "Sports Commentary", "sports-commentary.txt", True),
+    CorpusSpec("typescript-errors", "Tiny TypeScript", "typescript-errors.txt", True),
+    CorpusSpec("http-status", "Tiny HTTP", "http-status.txt", True),
+    CorpusSpec("movie-quotes", "Tiny Hollywood", "movie-quotes.txt", True),
+    CorpusSpec("genz-slang", "Tiny Gen Z", "genz-slang.txt", True),
+    CorpusSpec("vc-glossary", "Tiny Term Sheet", "vc-glossary.txt", True),
+    CorpusSpec("copypasta", "Tiny Copypasta", "copypasta.txt", True),
+    CorpusSpec("tech-twitter", "Tiny Hot Takes", "tech-twitter.txt", True),
+    CorpusSpec("cocktails", "Tiny Bar Cart", "cocktails.txt", True),
+    CorpusSpec("sports-commentary", "Tiny Sportsdesk", "sports-commentary.txt", True),
 )
 
 DEFAULT_CORPUS_ID = "tiny-shakespeare"
