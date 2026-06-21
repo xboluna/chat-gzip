@@ -2,7 +2,9 @@
 
 A chat interface for talking to a **gzip language model**—text generation via DEFLATE compression and beam search, inspired by [Language Modeling is Compression](https://arxiv.org/abs/2309.10668) and [Nathan Barry's gzipt](https://nathan.rs/posts/gzip-lm/).
 
-> The only LLM with zero parameters and a 32 KiB context window.
+> A language model with zero parameters. Powered by DEFLATE beam search.
+
+The header **"What's happening?"** button opens an explainer modal (`frontend/src/components/info/`) with three interactive graphics that demonstrate the model end to end: compression-as-prediction scoring, DEFLATE back-references, and a step-through beam search. All three share one illustrative scoring model in `frontend/src/utils/lz77.ts` (a simplified LZ77 estimate, not literal zlib) so the visuals stay honest to a single story.
 
 Before the first message, the chat footer shows **corpus-specific suggestion bubbles** (see `frontend/src/constants/suggestions.ts`). They hide as soon as the user types or sends a message.
 
@@ -139,6 +141,9 @@ chat-gzip/
 │   ├── tiny-shakespeare.txt  # Default corpus
 │   └── …                     # See scripts/build_corpora.py for other corpus sources
 ├── frontend/                 # React chat UI (suggestion bubbles, chat input, message list)
+│   └── src/
+│       ├── components/info/   # "What's happening?" modal + interactive explainer graphics
+│       └── utils/             # lz77.ts (illustrative scoring) + beamSearch.ts
 ├── vercel.json
 └── package.json
 ```
