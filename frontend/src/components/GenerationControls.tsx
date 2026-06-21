@@ -4,6 +4,7 @@ import {
   DEFAULT_TEMPERATURE_TIER,
   MAX_BYTES_TIERS,
   TEMPERATURE_TIERS,
+  shouldWarnMaxBytesTimeout,
   type MaxBytesTier,
   type TemperatureTier,
 } from '../constants/generation'
@@ -23,9 +24,9 @@ const TEMPERATURE_OPTIONS = Object.entries(TEMPERATURE_TIERS).map(
     color:
       value >= 2
         ? ('ludicrous' as const)
-        : value >= 1.8
+        : value >= 1.7
           ? ('rainbow' as const)
-          : value >= 1.6
+          : value >= 1.4
             ? ('glow' as const)
             : 'var(--pui-temp-medium)',
   }),
@@ -87,6 +88,11 @@ export function GenerationControls({
             onChange={(key) => onMaxBytesTierChange(key as MaxBytesTier)}
           />
         </div>
+        {shouldWarnMaxBytesTimeout(maxBytesTier) ? (
+          <p className="mt-2 text-xs text-amber-400/90">
+            Generation may time out at this length.
+          </p>
+        ) : null}
       </div>
     </div>
   )

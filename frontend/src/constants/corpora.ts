@@ -7,14 +7,11 @@ export type CorpusOption = {
 /** UI catalog — backend `/api/corpora` is authoritative for loadable corpora. */
 export const CORPUS_OPTIONS: CorpusOption[] = [
   { id: 'tiny-shakespeare', label: 'Tiny Shakespeare', enabled: true },
-  { id: 'typescript-errors', label: 'beep boop broken', enabled: true },
   { id: 'http-status', label: 'server said no', enabled: true },
   { id: 'movie-quotes', label: 'and the oscar goes to', enabled: true },
-  { id: 'genz-slang', label: 'young kids slang', enabled: true },
   { id: 'vc-glossary', label: 'VC slop', enabled: true },
   { id: 'copypasta', label: 'navy seal energy', enabled: true },
-  { id: 'tech-twitter', label: 'unpopular opinion dot com', enabled: true },
-  { id: 'cocktails', label: 'shaken not stirred', enabled: true },
+  { id: 'tech-twitter', label: 'twitterverse', enabled: true },
   { id: 'sports-commentary', label: 'GOOOAL', enabled: true },
 ]
 
