@@ -23,9 +23,9 @@ const TEMPERATURE_OPTIONS = Object.entries(TEMPERATURE_TIERS).map(
     color:
       value >= 2
         ? ('ludicrous' as const)
-        : value >= 1.8
+        : value >= 1.7
           ? ('rainbow' as const)
-          : value >= 1.6
+          : value >= 1.4
             ? ('glow' as const)
             : 'var(--pui-temp-medium)',
   }),
