@@ -4,7 +4,6 @@
  */
 export const CORPUS_ICON_PATHS: Record<string, string> = {
   'tiny-shakespeare': '/corpus-icons/tiny-shakespeare.svg',
-  'http-status': '/corpus-icons/http-status.svg',
   'movie-quotes': '/corpus-icons/movie-quotes.svg',
   'vc-glossary': '/corpus-icons/vc-glossary.svg',
   copypasta: '/corpus-icons/copypasta.svg',

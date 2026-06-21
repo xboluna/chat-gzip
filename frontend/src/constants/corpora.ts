@@ -10,7 +10,6 @@ export type CorpusOption = {
 /** Fallback byte lengths when `/api/corpora` is unavailable (matches `data/*.txt`). */
 export const CORPUS_BYTE_LENGTHS: Record<string, number> = {
   'tiny-shakespeare': 1_115_394,
-  'http-status': 1_750,
   'movie-quotes': 32_768,
   'vc-glossary': 22_046,
   copypasta: 32_768,
@@ -21,8 +20,6 @@ export const CORPUS_BYTE_LENGTHS: Record<string, number> = {
 export const CORPUS_DESCRIPTIONS: Record<string, string> = {
   'tiny-shakespeare':
     "Karpathy's tiny Shakespeare — the OG gzip LM training set. All the drama, none of the parameters.",
-  'http-status':
-    'IANA HTTP status code registry. 404 jokes write themselves.',
   'movie-quotes':
     'Classic Hollywood one-liners, trimmed to fit the DEFLATE window.',
   'vc-glossary':
@@ -44,13 +41,6 @@ export const CORPUS_OPTIONS: CorpusOption[] = [
     byteLength: CORPUS_BYTE_LENGTHS['tiny-shakespeare'],
   },
   {
-    id: 'http-status',
-    label: 'server said no',
-    description: CORPUS_DESCRIPTIONS['http-status'],
-    enabled: true,
-    byteLength: CORPUS_BYTE_LENGTHS['http-status'],
-  },
-  {
     id: 'movie-quotes',
     label: 'and the oscar goes to',
     description: CORPUS_DESCRIPTIONS['movie-quotes'],
@@ -66,14 +56,14 @@ export const CORPUS_OPTIONS: CorpusOption[] = [
   },
   {
     id: 'copypasta',
-    label: 'Copypasta',
+    label: 'copypasta',
     description: CORPUS_DESCRIPTIONS.copypasta,
     enabled: true,
     byteLength: CORPUS_BYTE_LENGTHS.copypasta,
   },
   {
     id: 'tech-twitter',
-    label: 'twitterverse',
+    label: 'Twitterverse',
     description: CORPUS_DESCRIPTIONS['tech-twitter'],
     enabled: true,
     byteLength: CORPUS_BYTE_LENGTHS['tech-twitter'],

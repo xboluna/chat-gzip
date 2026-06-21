@@ -34,13 +34,6 @@ CORPORA: tuple[CorpusSpec, ...] = (
         "Karpathy's tiny Shakespeare — the OG gzip LM training set. All the drama, none of the parameters.",
     ),
     CorpusSpec(
-        "http-status",
-        "server said no",
-        "http-status.txt",
-        True,
-        "IANA HTTP status code registry. 404 jokes write themselves.",
-    ),
-    CorpusSpec(
         "movie-quotes",
         "and the oscar goes to",
         "movie-quotes.txt",
@@ -56,14 +49,14 @@ CORPORA: tuple[CorpusSpec, ...] = (
     ),
     CorpusSpec(
         "copypasta",
-        "Copypasta",
+        "copypasta",
         "copypasta.txt",
         True,
         "Navy SEAL copypasta and meme-war dispatch logs. Maximum entropy, zero coherence.",
     ),
     CorpusSpec(
         "tech-twitter",
-        "twitterverse",
+        "Twitterverse",
         "tech-twitter.txt",
         True,
         "Hot takes, thread hooks, and startups cosplaying as AI companies.",
