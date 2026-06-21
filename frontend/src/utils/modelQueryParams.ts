@@ -12,6 +12,7 @@ export const MODEL_QUERY_PARAMS = {
   corpus: 'corpus',
   temperature: 'temperature',
   length: 'length',
+  info: 'info',
 } as const
 
 export type ModelSettingsFromUrl = {
@@ -44,6 +45,19 @@ export function parseCorpusParam(value: string | null): string | undefined {
   return value
 }
 
+function isTruthyParam(value: string | null): boolean {
+  if (value === null) {
+    return false
+  }
+  const normalized = value.trim().toLowerCase()
+  return normalized === '' || normalized === '1' || normalized === 'true'
+}
+
+export function readInfoOpenFromSearch(search: string): boolean {
+  const params = new URLSearchParams(search)
+  return isTruthyParam(params.get(MODEL_QUERY_PARAMS.info))
+}
+
 export function readModelSettingsFromSearch(
   search: string,
 ): ModelSettingsFromUrl {
@@ -65,6 +79,7 @@ export function buildModelSettingsSearch(
   corpusId: string,
   temperatureTier: TemperatureTier,
   maxBytesTier: MaxBytesTier,
+  infoOpen = false,
 ): string {
   const params = new URLSearchParams()
 
@@ -77,6 +92,9 @@ export function buildModelSettingsSearch(
   if (maxBytesTier !== DEFAULT_MAX_BYTES_TIER) {
     params.set(MODEL_QUERY_PARAMS.length, maxBytesTier)
   }
+  if (infoOpen) {
+    params.set(MODEL_QUERY_PARAMS.info, '1')
+  }
 
   const query = params.toString()
   return query ? `?${query}` : ''
@@ -86,11 +104,15 @@ export function syncModelSettingsToUrl(
   corpusId: string,
   temperatureTier: TemperatureTier,
   maxBytesTier: MaxBytesTier,
+  infoOpen?: boolean,
 ): void {
+  const resolvedInfoOpen =
+    infoOpen ?? readInfoOpenFromSearch(window.location.search)
   const search = buildModelSettingsSearch(
     corpusId,
     temperatureTier,
     maxBytesTier,
+    resolvedInfoOpen,
   )
   const nextUrl = `${window.location.pathname}${search}${window.location.hash}`
   const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`

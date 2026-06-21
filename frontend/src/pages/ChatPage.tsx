@@ -26,6 +26,10 @@ import {
   buildPromptFromMessages,
   utf8ByteLength,
 } from '../utils/contextBytes'
+import {
+  readInfoOpenFromSearch,
+  syncModelSettingsToUrl,
+} from '../utils/modelQueryParams'
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -44,7 +48,9 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [infoOpen, setInfoOpen] = useState(false)
+  const [infoOpen, setInfoOpen] = useState(() =>
+    readInfoOpenFromSearch(window.location.search),
+  )
 
   const listRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -189,6 +195,26 @@ export default function ChatPage() {
     }
   }
 
+  const handleInfoOpen = () => {
+    setInfoOpen(true)
+    syncModelSettingsToUrl(
+      corpusId,
+      temperatureTier,
+      maxBytesTier,
+      true,
+    )
+  }
+
+  const handleInfoClose = () => {
+    setInfoOpen(false)
+    syncModelSettingsToUrl(
+      corpusId,
+      temperatureTier,
+      maxBytesTier,
+      false,
+    )
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <header className="shrink-0 border-b border-zinc-800 px-4 py-4 sm:px-6">
@@ -204,7 +230,7 @@ export default function ChatPage() {
               Powered by DEFLATE beam search.
             </p>
           </div>
-          <InfoButton onClick={() => setInfoOpen(true)} />
+          <InfoButton onClick={handleInfoOpen} />
         </div>
       </header>
 
@@ -266,7 +292,7 @@ export default function ChatPage() {
         </div>
       </footer>
 
-      <InfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
+      <InfoModal open={infoOpen} onClose={handleInfoClose} />
     </div>
   )
 }
