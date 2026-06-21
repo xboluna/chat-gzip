@@ -1,0 +1,62 @@
+Tech Twitter Hot Takes
+
+Unpopular opinion: JavaScript was better before they added types.
+Unpopular opinion: CSS was better before they added types.
+Unpopular opinion: REST was better before they added types.
+Hot take: OpenAI is a AI company cosplaying as a protocol company.
+Hot take: Stripe is a fintech company cosplaying as a framework company.
+Hot take: Palantir is a defense company cosplaying as a SaaS company.
+Rust is just C with extra steps and worse .ai domains.
+Go is just Ruby with extra steps and worse .dev domains.
+Python is just PHP with extra steps and worse .app domains.
+I don't hate Spring, I just think Excel solved the problem better in 2014.
+I don't hate React, I just think jQuery solved the problem better in 2014.
+I don't hate Next.js, I just think PHP solved the problem better in 2014.
+Real devs don't use Jira. They use bash and pretend it's different.
+Real devs don't use Slack. They use spreadsheets and pretend it's different.
+Real devs don't use Notion. They use email and pretend it's different.
+The Web3 is over. We're entering the vibes-based engineering era now.
+The microservices is over. We're entering the agents era now.
+The serverless is over. We're entering the local-first era now.
+If your startup isn't using RAG, you're already behind.
+If your startup isn't using fine-tuning, you're already behind.
+If your startup isn't using AI agents, you're already behind.
+Normalize deploying on Fridays in production. It's actually fine.
+Normalize skipping tests in production. It's actually fine.
+Normalize one-file apps in production. It's actually fine.
+This could've been a cron job but they shipped a event mesh instead.
+This could've been a bash script but they shipped a data lakehouse instead.
+This could've been a Postgres table but they shipped a platform team instead.
+Thread: why the cloud is a trap and plain HTTP is the future 🧵
+Thread: why Kubernetes is a trap and SQLite is the future 🧵
+Thread: why GraphQL is a trap and monoliths is the future 🧵
+Controversial: founders should learn to read logs before writing code.
+Controversial: VPs should learn to use the terminal before writing code.
+Controversial: PMs should learn to grep before writing code.
+Everyone's building dashboards but nobody's solving latency.
+Everyone's building note apps but nobody's solving support tickets.
+Everyone's building chatbots but nobody's solving churn.
+The best engineers I know still deploy on a VPS and sleep well.
+The best engineers I know still deploy on Heroku and sleep well.
+The best engineers I know still deploy on a single EC2 box and sleep well.
+Stop optimizing velocity. Start optimizing deploy frequency.
+Stop optimizing lines of code. Start optimizing incident time.
+Stop optimizing story points. Start optimizing user retention.
+VCs will fund AI for pets but ignore better error messages every time.
+VCs will fund Uber for X but ignore faster CI every time.
+VCs will fund blockchain social but ignore cheaper hosting every time.
+Your stack isn't microservices, it's distributed monolith with extra latency.
+Your platform isn't microservices, it's distributed monolith with extra latency.
+Your infra isn't microservices, it's distributed monolith with extra latency.
+We don't need another productivity app. We need fewer meetings about productivity.
+We don't need another AI app. We need fewer meetings about AI.
+We don't need another collaboration app. We need fewer meetings about collaboration.
+If you're not embarrassed by v1, you launched too late — unless v1 is a blockchain PDF signer.
+If you're not embarrassed by v1, you launched too late — unless v1 is chat for dogs.
+If you're not embarrassed by v1, you launched too late — unless v1 is NFT receipts.
+The real 10x engineer uses Neovim and refuses to explain why.
+The real 10x engineer uses a mechanical keyboard and refuses to explain why.
+The real 10x engineer uses Vim and refuses to explain why.
+AI won't replace developers. It'll replace developers who don't use Cursor.
+AI won't replace developers. It'll replace developers who don't use Claude.
+AI won't replace developers. It'll replace developers who don't use ChatGPT.
