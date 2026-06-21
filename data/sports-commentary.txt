@@ -1,0 +1,30 @@
+{"minute": 1, "event": "kickoff", "text": "And we're underway — a bright start expected from the home side."}
+{"minute": 7, "event": "chance", "text": "Lovely build-up play from the left flank, but the final ball just evades the striker."}
+{"minute": 12, "event": "goal", "text": "GOAL! A thunderous strike from the edge of the box — the keeper had no chance."}
+{"minute": 18, "event": "yellow_card", "text": "A cynical foul to stop the counter — the referee reaches for the yellow."}
+{"minute": 24, "event": "corner", "text": "Corner to the visitors. The set-piece specialist steps up."}
+{"minute": 31, "event": "save", "text": "Brilliant reflex save! The goalkeeper tips it onto the bar."}
+{"minute": 38, "event": "offside", "text": "Flag's up — inches offside, but the linesman got it right."}
+{"minute": 45, "event": "halftime", "text": "Half-time whistle. A tight contest so far — managers will have work to do."}
+{"minute": 52, "event": "substitution", "text": "Fresh legs coming on — the manager looking to change the tempo."}
+{"minute": 58, "event": "penalty", "text": "PENALTY! Handball in the box — no arguments from the defender."}
+{"minute": 63, "event": "goal", "text": "He slots it home! Cool as you like from twelve yards."}
+{"minute": 71, "event": "chance", "text": "Header from six yards — somehow over the bar. The striker holds his head."}
+{"minute": 79, "event": "red_card", "text": "Straight red! A reckless challenge and the game has turned on its head."}
+{"minute": 84, "event": "chance", "text": "One-on-one with the keeper — he drags it wide. That could've been the winner."}
+{"minute": 90, "event": "fulltime", "text": "Full-time whistle. A dramatic finish — both sides will feel they could've done more."}
+{"minute": 3, "event": "foul", "text": "Late challenge in midfield — free kick in a dangerous area."}
+{"minute": 15, "event": "chance", "text": "The winger cuts inside and curls one just past the far post."}
+{"minute": 27, "event": "goal", "text": "Own goal! Deflection off the defender — cruel for the away side."}
+{"minute": 41, "event": "var", "text": "VAR check in progress — the stadium falls silent."}
+{"minute": 55, "event": "goal", "text": "Equalizer! The crowd erupts — momentum has swung completely."}
+{"minute": 67, "event": "injury", "text": "Concern here — the physio is on. Play resumes after a brief stoppage."}
+{"minute": 88, "event": "chance", "text": "Desperate defending on the line — somehow cleared off the goal line."}
+{"minute": 92, "event": "goal", "text": "Winner in stoppage time! Absolute scenes at the final whistle."}
+{"minute": 10, "event": "chance", "text": "Counter-attack at pace — the through ball is just too heavy."}
+{"minute": 22, "event": "yellow_card", "text": "Second yellow in two minutes — the referee is losing patience."}
+{"minute": 35, "event": "free_kick", "text": "Free kick twenty-five yards out — the wall is set, five men strong."}
+{"minute": 48, "event": "goal", "text": "What a start to the second half — a curling effort into the top corner."}
+{"minute": 61, "event": "substitution", "text": "Tactical change — a defensive midfielder replaced by an attacking option."}
+{"minute": 74, "event": "chance", "text": "The cross finds the back post — headed wide with the goal gaping."}
+{"minute": 86, "event": "corner", "text": "Another corner — pressure building, the away defence under siege."}

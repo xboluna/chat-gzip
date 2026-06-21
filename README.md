@@ -114,7 +114,8 @@ chat-gzip/
 │       ├── gzip_lm.py        # Chat orchestration
 │       └── corpora.py        # Corpus registry
 ├── data/
-│   └── tiny-shakespeare.txt  # Default corpus
+│   ├── tiny-shakespeare.txt  # Default corpus
+│   └── …                     # See scripts/build_corpora.py for other corpus sources
 ├── frontend/                 # React chat UI
 ├── vercel.json
 └── package.json

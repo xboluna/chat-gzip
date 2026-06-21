@@ -69,6 +69,12 @@ export default function ChatPage() {
 
   const contextBytes = liveContextBytes
 
+  const corpusLabel = useMemo(() => {
+    return (
+      corpora.find((corpus) => corpus.id === corpusId)?.label ?? 'Tiny Shakespeare'
+    )
+  }, [corpora, corpusId])
+
   useEffect(() => {
     const node = listRef.current
     if (node) {
@@ -169,6 +175,7 @@ export default function ChatPage() {
           messages={messages}
           pending={pending}
           pendingStartedAt={pendingStartedAt}
+          corpusLabel={corpusLabel}
         />
       </div>
 
