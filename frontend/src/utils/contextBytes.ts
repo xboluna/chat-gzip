@@ -15,28 +15,37 @@ export function buildPromptFromMessages(
     .join('\n')
 }
 
-export type ContextWindowBreakdown = {
+export type VisibleWindowBreakdown = {
   corpusBytes: number
   userBytes: number
   totalBytes: number
-  overflowBytes: number
 }
 
-export function contextWindowBreakdown(
+/** Last N bytes of the virtual corpus + user stream visible in the 32 KiB window. */
+export function visibleContextWindow(
   corpusBytes: number,
   userBytes: number,
-): ContextWindowBreakdown {
-  const corpusInWindow = Math.min(corpusBytes, CONTEXT_LIMIT_BYTES)
-  const remaining = Math.max(0, CONTEXT_LIMIT_BYTES - corpusInWindow)
-  const userInWindow = Math.min(userBytes, remaining)
-  const totalBytes = corpusInWindow + userInWindow
-  const overflowBytes = Math.max(0, corpusInWindow + userBytes - CONTEXT_LIMIT_BYTES)
+): VisibleWindowBreakdown {
+  const totalContent = corpusBytes + userBytes
+  const windowStart = Math.max(0, totalContent - CONTEXT_LIMIT_BYTES)
+  const windowEnd = totalContent
+
+  const corpusVisibleBytes =
+    windowStart >= corpusBytes
+      ? 0
+      : Math.min(corpusBytes - windowStart, CONTEXT_LIMIT_BYTES)
+
+  const userVisibleStart = Math.max(windowStart, corpusBytes)
+  const userVisibleBytes = Math.max(
+    0,
+    Math.min(windowEnd, corpusBytes + userBytes) - userVisibleStart,
+  )
+  const totalBytes = corpusVisibleBytes + userVisibleBytes
 
   return {
-    corpusBytes: corpusInWindow,
-    userBytes: userInWindow,
+    corpusBytes: corpusVisibleBytes,
+    userBytes: userVisibleBytes,
     totalBytes,
-    overflowBytes,
   }
 }
 
@@ -52,8 +61,8 @@ export function buildContextPills(
   corpusBytes: number,
   userBytes: number,
 ): ContextPill[] {
-  const { corpusBytes: corpusInWindow, userBytes: userInWindow } =
-    contextWindowBreakdown(corpusBytes, userBytes)
+  const { corpusBytes: corpusVisible, userBytes: userVisible } =
+    visibleContextWindow(corpusBytes, userBytes)
   const bytesPerPill = CONTEXT_LIMIT_BYTES / CONTEXT_PILL_COUNT
 
   return Array.from({ length: CONTEXT_PILL_COUNT }, (_, index) => {
@@ -61,12 +70,12 @@ export function buildContextPills(
     const rangeEnd = (index + 1) * bytesPerPill
     const corpusFill = Math.max(
       0,
-      Math.min(rangeEnd, corpusInWindow) - Math.max(rangeStart, 0),
+      Math.min(rangeEnd, corpusVisible) - Math.max(rangeStart, 0),
     )
     const userFill = Math.max(
       0,
-      Math.min(rangeEnd, corpusInWindow + userInWindow) -
-        Math.max(rangeStart, corpusInWindow),
+      Math.min(rangeEnd, corpusVisible + userVisible) -
+        Math.max(rangeStart, corpusVisible),
     )
     const emptyFill = bytesPerPill - corpusFill - userFill
 
@@ -86,9 +95,4 @@ export function buildContextPills(
       userRatio: userFill / bytesPerPill,
     }
   })
-}
-
-export function isContextWarning(corpusBytes: number, userBytes: number): boolean {
-  const { totalBytes, overflowBytes } = contextWindowBreakdown(corpusBytes, userBytes)
-  return overflowBytes > 0 || totalBytes / CONTEXT_LIMIT_BYTES >= 0.8
 }

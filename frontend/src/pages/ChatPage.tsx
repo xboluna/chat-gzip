@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChatInput } from '../components/ChatInput'
-import { ContextBar } from '../components/ContextBar'
+import { ContextPanel } from '../components/ContextPanel'
 import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
 import {
@@ -139,48 +139,27 @@ export default function ChatPage() {
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-zinc-800 px-4 py-4 sm:px-6">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
-                chat-gzip
-              </p>
-              <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
-                The only LLM with zero parameters
-              </h1>
-              <p className="mt-1 text-sm text-zinc-500">
-                Powered by DEFLATE beam search. Not powered by GPUs.
-              </p>
-            </div>
-
-            <label className="flex min-w-[180px] flex-col gap-1 text-xs text-zinc-500">
-              Corpus
-              <select
-                value={corpusId}
-                disabled={pending}
-                onChange={(event) => setCorpusId(event.target.value)}
-                className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 focus:border-emerald-500/50 focus:outline-none"
-              >
-                {corpora.map((corpus) => (
-                  <option
-                    key={corpus.id}
-                    value={corpus.id}
-                    disabled={!corpus.enabled}
-                  >
-                    {corpus.label}
-                    {!corpus.enabled ? ' (soon)' : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <ContextBar
-            corpusBytes={corpusByteLength}
-            userBytes={userContextBytes}
-          />
+        <div className="mx-auto w-full max-w-3xl">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+            chat-gzip
+          </p>
+          <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
+            The only LLM with zero parameters
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Powered by DEFLATE beam search. Not powered by GPUs.
+          </p>
         </div>
       </header>
+
+      <ContextPanel
+        corpusId={corpusId}
+        corpora={corpora}
+        corpusBytes={corpusByteLength}
+        userBytes={userContextBytes}
+        disabled={pending}
+        onCorpusChange={setCorpusId}
+      />
 
       <GenerationDrawer
         temperatureTier={temperatureTier}
