@@ -63,7 +63,7 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/api/health` | `{ "status": "ok" }` |
-| `GET` | `/api/corpora` | Corpus catalog (enabled/disabled) |
+| `GET` | `/api/corpora` | Corpus catalog (`description`, `byte_length` per corpus) |
 | `POST` | `/api/chat` | Generate assistant continuation |
 
 ### `POST /api/chat`

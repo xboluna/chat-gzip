@@ -17,20 +17,6 @@ export const CORPUS_SUGGESTIONS: Record<string, CorpusSuggestion[]> = {
       text: 'O Romeo, Romeo! wherefore art thou Romeo',
     },
   ],
-  'http-status': [
-    {
-      label: '502 Bad',
-      text: '502 Bad Gateway',
-    },
-    {
-      label: '429 Too Many',
-      text: '429 Too Many Requests',
-    },
-    {
-      label: '511 Network',
-      text: '511 Network Authentication Required',
-    },
-  ],
   'movie-quotes': [
     {
       label: 'I am the senate!',

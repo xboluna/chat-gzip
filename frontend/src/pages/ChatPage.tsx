@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChatInput } from '../components/ChatInput'
-import { ContextBar } from '../components/ContextBar'
+import { CorpusDrawer } from '../components/CorpusDrawer'
+import { ContextDrawer } from '../components/ContextDrawer'
 import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
 import { SuggestionBubbles } from '../components/SuggestionBubbles'
-import { DEFAULT_CORPUS_ID } from '../constants/corpora'
+import {
+  CORPUS_BYTE_LENGTHS,
+  CORPUS_DESCRIPTIONS,
+  CORPUS_OPTIONS,
+  DEFAULT_CORPUS_ID,
+  type CorpusOption,
+} from '../constants/corpora'
 import { suggestionsForCorpus } from '../constants/suggestions'
 import {
   DEFAULT_MAX_BYTES_TIER,
@@ -29,9 +36,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
   const [corpusId, setCorpusId] = useState(DEFAULT_CORPUS_ID)
-  const [corpora, setCorpora] = useState<
-    Array<{ id: string; label: string; enabled: boolean }>
-  >([])
+  const [corpora, setCorpora] = useState<CorpusOption[]>([])
   const [temperatureTier, setTemperatureTier] = useState<TemperatureTier>(
     DEFAULT_TEMPERATURE_TIER,
   )
@@ -47,13 +52,22 @@ export default function ChatPage() {
   useEffect(() => {
     fetchCorpora()
       .then((data) => {
-        setCorpora(data.corpora)
+        setCorpora(
+          data.corpora.map((corpus) => ({
+            id: corpus.id,
+            label: corpus.label,
+            description:
+              corpus.description ||
+              CORPUS_DESCRIPTIONS[corpus.id] ||
+              '',
+            enabled: corpus.enabled,
+            byteLength: corpus.byte_length,
+          })),
+        )
         setCorpusId(data.default)
       })
       .catch(() => {
-        setCorpora([
-          { id: DEFAULT_CORPUS_ID, label: 'Tiny Shakespeare', enabled: true },
-        ])
+        setCorpora(CORPUS_OPTIONS)
       })
   }, [])
 
@@ -69,7 +83,15 @@ export default function ChatPage() {
     return utf8ByteLength(buildPromptFromMessages(projectedMessages))
   }, [projectedMessages])
 
-  const contextBytes = liveContextBytes
+  const userContextBytes = liveContextBytes
+
+  const corpusByteLength = useMemo(() => {
+    return (
+      corpora.find((corpus) => corpus.id === corpusId)?.byteLength ??
+      CORPUS_BYTE_LENGTHS[corpusId] ??
+      0
+    )
+  }, [corpora, corpusId])
 
   const corpusLabel = useMemo(() => {
     return (
@@ -132,45 +154,31 @@ export default function ChatPage() {
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-zinc-800 px-4 py-4 sm:px-6">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
-                chat-gzip
-              </p>
-              <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
-                The only LLM with zero parameters
-              </h1>
-              <p className="mt-1 text-sm text-zinc-500">
-                Powered by DEFLATE beam search. Not powered by GPUs.
-              </p>
-            </div>
-
-            <label className="flex min-w-[180px] flex-col gap-1 text-xs text-zinc-500">
-              Corpus
-              <select
-                value={corpusId}
-                disabled={pending}
-                onChange={(event) => setCorpusId(event.target.value)}
-                className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 focus:border-emerald-500/50 focus:outline-none"
-              >
-                {corpora.map((corpus) => (
-                  <option
-                    key={corpus.id}
-                    value={corpus.id}
-                    disabled={!corpus.enabled}
-                  >
-                    {corpus.label}
-                    {!corpus.enabled ? ' (soon)' : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <ContextBar bytes={contextBytes} />
+        <div className="mx-auto w-full max-w-3xl">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+            chat-gzip
+          </p>
+          <h1 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
+            The only LLM with zero parameters
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Powered by DEFLATE beam search. Not powered by GPUs.
+          </p>
         </div>
       </header>
+
+      <CorpusDrawer
+        corpusId={corpusId}
+        corpora={corpora}
+        disabled={pending}
+        onCorpusChange={setCorpusId}
+      />
+
+      <ContextDrawer
+        corpusBytes={corpusByteLength}
+        userBytes={userContextBytes}
+        disabled={pending}
+      />
 
       <GenerationDrawer
         temperatureTier={temperatureTier}
