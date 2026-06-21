@@ -126,6 +126,8 @@ On failure after the stream starts, the server emits `event: error` with `{"mess
 
 The chat UI streams by default via `postChatStream()` in `frontend/src/services/api.ts`.
 
+The site favicon (`frontend/public/favicon.svg`) composites the public-domain [GNU gzip logo](https://commons.wikimedia.org/wiki/File:Gzip-Logo.svg) with hand-placed “chat” lettering on a transparent background.
+
 ## Project structure
 
 ```
@@ -141,6 +143,7 @@ chat-gzip/
 │   ├── tiny-shakespeare.txt  # Default corpus
 │   └── …                     # See scripts/build_corpora.py for other corpus sources
 ├── frontend/                 # React chat UI (suggestion bubbles, chat input, message list)
+│   ├── public/               # Static assets (favicon, corpus icons, web manifest)
 │   └── src/
 │       ├── components/info/   # "What's happening?" modal + interactive explainer graphics
 │       └── utils/             # lz77.ts (illustrative scoring) + beamSearch.ts
