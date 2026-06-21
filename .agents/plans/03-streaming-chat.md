@@ -21,8 +21,9 @@ Each iteration of `gzipt.generate_stream()` commits a span (up to ~24 bytes). Th
 
 ## UX
 
-- Show `WibblingSpinner` until the first chunk arrives.
-- Append streamed text to the in-flight assistant message.
+- Show `WibblingSpinner` for the full stream duration (not only before the first chunk).
+- Append streamed text to the in-flight assistant message with a pulsing cursor and live byte count.
+- The bubble border glows while streaming and returns to normal when `done` arrives.
 - Keep input disabled until the stream completes (`pending`).
 - On error, roll back the partial assistant message.
 

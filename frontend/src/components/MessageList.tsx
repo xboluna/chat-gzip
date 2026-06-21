@@ -1,20 +1,20 @@
 import type { ChatMessage } from '../services/api'
-import { PendingMessage } from './PendingMessage'
+import { StreamingAssistantMessage } from './StreamingAssistantMessage'
 
 type MessageListProps = {
   messages: ChatMessage[]
-  awaitingFirstChunk: boolean
+  isStreaming: boolean
   pendingStartedAt: number | null
   corpusLabel: string
 }
 
 export function MessageList({
   messages,
-  awaitingFirstChunk,
+  isStreaming,
   pendingStartedAt,
   corpusLabel,
 }: MessageListProps) {
-  if (messages.length === 0 && !awaitingFirstChunk) {
+  if (messages.length === 0 && !isStreaming) {
     return (
       <div className="flex flex-1 items-center justify-center px-4 py-12 text-center text-sm leading-relaxed text-zinc-500">
         Say something. gzip will continue it by finding the most compressible
@@ -26,38 +26,39 @@ export function MessageList({
   return (
     <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
       {messages.map((message, index) => {
-        const isStreamingPlaceholder =
-          awaitingFirstChunk &&
+        const isActiveStream =
+          isStreaming &&
           index === messages.length - 1 &&
           message.role === 'assistant' &&
-          message.content === ''
-
-        if (isStreamingPlaceholder) {
-          return null
-        }
+          pendingStartedAt !== null
 
         return (
           <div
             key={`${message.role}-${index}`}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div
-              className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                message.role === 'user'
-                  ? 'rounded-br-md bg-emerald-600/20 text-emerald-50'
-                  : 'rounded-bl-md border border-zinc-800 bg-zinc-900/80 text-zinc-200'
-              }`}
-            >
-              {message.content || (
-                <span className="italic text-zinc-500">(empty continuation)</span>
-              )}
-            </div>
+            {isActiveStream ? (
+              <StreamingAssistantMessage
+                content={message.content}
+                startedAt={pendingStartedAt}
+                isStreaming
+              />
+            ) : (
+              <div
+                className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                  message.role === 'user'
+                    ? 'rounded-br-md bg-emerald-600/20 text-emerald-50'
+                    : 'rounded-bl-md border border-zinc-800 bg-zinc-900/80 text-zinc-200'
+                }`}
+              >
+                {message.content || (
+                  <span className="italic text-zinc-500">(empty continuation)</span>
+                )}
+              </div>
+            )}
           </div>
         )
       })}
-      {awaitingFirstChunk && pendingStartedAt !== null && (
-        <PendingMessage startedAt={pendingStartedAt} />
-      )}
     </div>
   )
 }

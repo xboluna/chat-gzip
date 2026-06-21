@@ -44,7 +44,7 @@ export default function ChatPage() {
     DEFAULT_MAX_BYTES_TIER,
   )
   const [pending, setPending] = useState(false)
-  const [awaitingFirstChunk, setAwaitingFirstChunk] = useState(false)
+  const [isStreaming, setIsStreaming] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -114,7 +114,7 @@ export default function ChatPage() {
     if (node) {
       node.scrollTop = node.scrollHeight
     }
-  }, [messages, awaitingFirstChunk, draft])
+  }, [messages, isStreaming, draft])
 
   useEffect(() => {
     return () => {
@@ -145,7 +145,7 @@ export default function ChatPage() {
     setDraft('')
     setError(null)
     setPending(true)
-    setAwaitingFirstChunk(true)
+    setIsStreaming(true)
     setPendingStartedAt(Date.now())
 
     try {
@@ -158,7 +158,6 @@ export default function ChatPage() {
         },
         {
           onChunk: (content) => {
-            setAwaitingFirstChunk(false)
             setMessages((current) => {
               const last = current[current.length - 1]
               if (!last || last.role !== 'assistant') {
@@ -187,7 +186,7 @@ export default function ChatPage() {
         abortRef.current = null
       }
       setPending(false)
-      setAwaitingFirstChunk(false)
+      setIsStreaming(false)
       setPendingStartedAt(null)
     }
   }
@@ -232,7 +231,7 @@ export default function ChatPage() {
       <div ref={listRef} className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
         <MessageList
           messages={messages}
-          awaitingFirstChunk={awaitingFirstChunk}
+          isStreaming={isStreaming}
           pendingStartedAt={pendingStartedAt}
           corpusLabel={corpusLabel}
         />
