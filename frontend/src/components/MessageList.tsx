@@ -16,7 +16,7 @@ export function MessageList({
 }: MessageListProps) {
   if (messages.length === 0 && !isStreaming) {
     return (
-      <div className="flex flex-1 items-center justify-center px-4 py-12 text-center text-sm leading-relaxed text-zinc-500">
+      <div className="flex h-full items-center justify-center px-4 py-12 text-center text-sm leading-relaxed text-zinc-500">
         Say something. gzip will continue it by finding the most compressible
         bytes in {corpusLabel}.
       </div>
@@ -24,7 +24,7 @@ export function MessageList({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+    <div className="flex flex-col gap-3 px-4 py-4">
       {messages.map((message, index) => {
         const isActiveStream =
           isStreaming &&

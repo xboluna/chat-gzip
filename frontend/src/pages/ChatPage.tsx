@@ -9,18 +9,11 @@ import {
   CORPUS_BYTE_LENGTHS,
   CORPUS_DESCRIPTIONS,
   CORPUS_OPTIONS,
-  DEFAULT_CORPUS_ID,
   type CorpusOption,
 } from '../constants/corpora'
 import { suggestionsForCorpus } from '../constants/suggestions'
-import {
-  DEFAULT_MAX_BYTES_TIER,
-  DEFAULT_TEMPERATURE_TIER,
-  maxBytesForTier,
-  temperatureForTier,
-  type MaxBytesTier,
-  type TemperatureTier,
-} from '../constants/generation'
+import { maxBytesForTier, temperatureForTier } from '../constants/generation'
+import { useModelSettings } from '../hooks/useModelSettings'
 import {
   type ChatMessage,
   fetchCorpora,
@@ -35,14 +28,16 @@ import {
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
-  const [corpusId, setCorpusId] = useState(DEFAULT_CORPUS_ID)
   const [corpora, setCorpora] = useState<CorpusOption[]>([])
-  const [temperatureTier, setTemperatureTier] = useState<TemperatureTier>(
-    DEFAULT_TEMPERATURE_TIER,
-  )
-  const [maxBytesTier, setMaxBytesTier] = useState<MaxBytesTier>(
-    DEFAULT_MAX_BYTES_TIER,
-  )
+  const {
+    corpusId,
+    temperatureTier,
+    maxBytesTier,
+    setCorpusId,
+    setTemperatureTier,
+    setMaxBytesTier,
+    applyServerDefaultCorpus,
+  } = useModelSettings()
   const [pending, setPending] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
@@ -66,12 +61,12 @@ export default function ChatPage() {
             byteLength: corpus.byte_length,
           })),
         )
-        setCorpusId(data.default)
+        applyServerDefaultCorpus(data.default)
       })
       .catch(() => {
         setCorpora(CORPUS_OPTIONS)
       })
-  }, [])
+  }, [applyServerDefaultCorpus])
 
   const projectedMessages = useMemo(() => {
     const trimmed = draft.trim()
@@ -192,8 +187,8 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="border-b border-zinc-800 px-4 py-4 sm:px-6">
+    <div className="flex h-full flex-col overflow-hidden">
+      <header className="shrink-0 border-b border-zinc-800 px-4 py-4 sm:px-6">
         <div className="mx-auto w-full max-w-3xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
             chat-gzip
@@ -228,7 +223,10 @@ export default function ChatPage() {
         onMaxBytesTierChange={setMaxBytesTier}
       />
 
-      <div ref={listRef} className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+      <div
+        ref={listRef}
+        className="mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col overflow-y-auto"
+      >
         <MessageList
           messages={messages}
           isStreaming={isStreaming}
@@ -237,7 +235,7 @@ export default function ChatPage() {
         />
       </div>
 
-      <footer className="border-t border-zinc-800 px-4 py-4 sm:px-6">
+      <footer className="shrink-0 border-t border-zinc-800 px-4 py-4 sm:px-6">
         <div className="mx-auto w-full max-w-3xl space-y-3">
           {error && (
             <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
