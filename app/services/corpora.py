@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -12,8 +13,11 @@ MAX_GENERATED_BYTES = 512
 DEFAULT_MAX_BYTES = 64
 MIN_TEMPERATURE = 0.2
 DEFAULT_TEMPERATURE = 1.0
-DEFAULT_BEAM_WIDTH = 16
+DEFAULT_BEAM_WIDTH = 8
+DEFAULT_HORIZON = 4
+DEFAULT_COMPRESSION_LEVEL = 6
 DEFAULT_WORKERS = 4
+SSE_CHUNK_CHARS = 2
 
 
 @dataclass(frozen=True)
@@ -103,6 +107,7 @@ def get_corpus_spec(corpus_id: str) -> CorpusSpec | None:
     return None
 
 
+@lru_cache(maxsize=None)
 def load_corpus_bytes(corpus_id: str) -> bytes:
     spec = get_corpus_spec(corpus_id)
     if spec is None or not spec.enabled:
@@ -113,3 +118,34 @@ def load_corpus_bytes(corpus_id: str) -> bytes:
         raise FileNotFoundError(f"Corpus file missing: {path}")
 
     return path.read_bytes()
+
+
+@lru_cache(maxsize=None)
+def corpus_alphabet_for_id(corpus_id: str) -> tuple[int, ...]:
+    from app.services.gzipt import corpus_alphabet
+
+    return corpus_alphabet(load_corpus_bytes(corpus_id))
+
+
+def merge_alphabet(corpus_alpha: tuple[int, ...], prompt: bytes) -> tuple[int, ...]:
+    if not prompt:
+        return corpus_alpha
+    merged = set(corpus_alpha)
+    merged.update(prompt)
+    return tuple(sorted(merged))
+
+
+def warm_runtime_caches() -> None:
+    """Load corpora and worker pool once per serverless instance."""
+    from app.services.gzipt import warm_worker_pool
+
+    for spec in CORPORA:
+        if not spec.enabled:
+            continue
+        try:
+            load_corpus_bytes(spec.id)
+            corpus_alphabet_for_id(spec.id)
+        except FileNotFoundError:
+            continue
+
+    warm_worker_pool(DEFAULT_WORKERS)

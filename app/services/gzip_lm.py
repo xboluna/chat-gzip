@@ -2,19 +2,26 @@ from __future__ import annotations
 
 import re
 import time
-from typing import Any
+from collections.abc import Iterator
+from dataclasses import dataclass
+from typing import Any, Literal, TypedDict
 
 from app.services import gzipt
 from app.services.corpora import (
     CONTEXT_LIMIT_BYTES,
     DEFAULT_BEAM_WIDTH,
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_HORIZON,
     DEFAULT_MAX_BYTES,
     DEFAULT_TEMPERATURE,
     DEFAULT_WORKERS,
     MAX_GENERATED_BYTES,
     MIN_GENERATED_BYTES,
     MIN_TEMPERATURE,
+    SSE_CHUNK_CHARS,
+    corpus_alphabet_for_id,
     load_corpus_bytes,
+    merge_alphabet,
 )
 
 DEFAULT_STOP_SEQUENCES = (b"\x00",)
@@ -36,6 +43,117 @@ def sanitize_output(text: str) -> str:
     return cleaned
 
 
+class ChatChunkEvent(TypedDict):
+    type: Literal["chunk"]
+    content: str
+
+
+class ChatDoneEvent(TypedDict):
+    type: Literal["done"]
+    meta: dict[str, Any]
+
+
+ChatStreamEvent = ChatChunkEvent | ChatDoneEvent
+
+
+@dataclass(frozen=True)
+class GenerationParams:
+    corpus: bytes
+    prompt_bytes: bytes
+    temperature: float
+    max_bytes: int
+    alphabet: tuple[int, ...]
+
+
+def _iter_sse_chunks(text: str) -> Iterator[str]:
+    for index in range(0, len(text), SSE_CHUNK_CHARS):
+        piece = text[index : index + SSE_CHUNK_CHARS]
+        if piece:
+            yield piece
+
+
+def _generation_params(
+    *,
+    corpus_id: str,
+    prompt_bytes: bytes,
+    temperature: float,
+    max_bytes: int,
+) -> GenerationParams:
+    return GenerationParams(
+        corpus=load_corpus_bytes(corpus_id),
+        prompt_bytes=prompt_bytes,
+        max_bytes=max(
+            MIN_GENERATED_BYTES,
+            min(MAX_GENERATED_BYTES, int(max_bytes)),
+        ),
+        temperature=max(MIN_TEMPERATURE, min(2.0, float(temperature))),
+        alphabet=merge_alphabet(
+            corpus_alphabet_for_id(corpus_id),
+            prompt_bytes,
+        ),
+    )
+
+
+def generate_reply_stream(
+    *,
+    corpus_id: str,
+    messages: list[dict[str, Any]],
+    temperature: float = DEFAULT_TEMPERATURE,
+    max_bytes: int = DEFAULT_MAX_BYTES,
+) -> Iterator[ChatStreamEvent]:
+    prompt_text = build_prompt(messages)
+    prompt_bytes = prompt_text.encode("utf-8", errors="replace")
+    context_bytes = len(prompt_bytes)
+
+    params = _generation_params(
+        corpus_id=corpus_id,
+        prompt_bytes=prompt_bytes,
+        temperature=temperature,
+        max_bytes=max_bytes,
+    )
+
+    started = time.perf_counter()
+    raw = bytearray()
+    last_sanitized_len = 0
+
+    for span in gzipt.generate_stream(
+        params.corpus,
+        params.prompt_bytes,
+        params.max_bytes,
+        beam_width=DEFAULT_BEAM_WIDTH,
+        horizon=DEFAULT_HORIZON,
+        level=DEFAULT_COMPRESSION_LEVEL,
+        workers=DEFAULT_WORKERS,
+        temperature=params.temperature,
+        alphabet=params.alphabet,
+        stop_sequences=DEFAULT_STOP_SEQUENCES,
+    ):
+        raw.extend(span)
+        sanitized = sanitize_output(raw.decode("utf-8", errors="replace"))
+        if len(sanitized) > last_sanitized_len:
+            delta = sanitized[last_sanitized_len:]
+            for piece in _iter_sse_chunks(delta):
+                yield {
+                    "type": "chunk",
+                    "content": piece,
+                }
+            last_sanitized_len = len(sanitized)
+
+    elapsed_ms = int((time.perf_counter() - started) * 1000)
+    yield {
+        "type": "done",
+        "meta": {
+            "elapsed_ms": elapsed_ms,
+            "bytes_generated": len(raw),
+            "corpus_id": corpus_id,
+            "temperature": params.temperature,
+            "max_bytes": params.max_bytes,
+            "context_bytes": context_bytes,
+            "context_limit_bytes": CONTEXT_LIMIT_BYTES,
+        },
+    }
+
+
 def generate_reply(
     *,
     corpus_id: str,
@@ -47,21 +165,24 @@ def generate_reply(
     prompt_bytes = prompt_text.encode("utf-8", errors="replace")
     context_bytes = len(prompt_bytes)
 
-    corpus = load_corpus_bytes(corpus_id)
-    clamped_temp = max(MIN_TEMPERATURE, min(2.0, float(temperature)))
-    clamped_max_bytes = max(
-        MIN_GENERATED_BYTES,
-        min(MAX_GENERATED_BYTES, int(max_bytes)),
+    params = _generation_params(
+        corpus_id=corpus_id,
+        prompt_bytes=prompt_bytes,
+        temperature=temperature,
+        max_bytes=max_bytes,
     )
 
     started = time.perf_counter()
     raw = gzipt.generate(
-        corpus,
-        prompt_bytes,
-        clamped_max_bytes,
+        params.corpus,
+        params.prompt_bytes,
+        params.max_bytes,
         beam_width=DEFAULT_BEAM_WIDTH,
+        horizon=DEFAULT_HORIZON,
+        level=DEFAULT_COMPRESSION_LEVEL,
         workers=DEFAULT_WORKERS,
-        temperature=clamped_temp,
+        temperature=params.temperature,
+        alphabet=params.alphabet,
         stop_sequences=DEFAULT_STOP_SEQUENCES,
     )
     elapsed_ms = int((time.perf_counter() - started) * 1000)
@@ -74,8 +195,8 @@ def generate_reply(
             "elapsed_ms": elapsed_ms,
             "bytes_generated": len(raw),
             "corpus_id": corpus_id,
-            "temperature": clamped_temp,
-            "max_bytes": clamped_max_bytes,
+            "temperature": params.temperature,
+            "max_bytes": params.max_bytes,
             "context_bytes": context_bytes,
             "context_limit_bytes": CONTEXT_LIMIT_BYTES,
         },
