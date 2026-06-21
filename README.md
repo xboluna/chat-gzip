@@ -126,6 +126,8 @@ On failure after the stream starts, the server emits `event: error` with `{"mess
 
 The chat UI streams by default via `postChatStream()` in `frontend/src/services/api.ts`.
 
+The site favicon (`frontend/public/favicon.svg`) composites the public-domain [GNU gzip logo](https://commons.wikimedia.org/wiki/File:Gzip-Logo.svg) with hand-placed “chat” lettering on a transparent background.
+
 ## Project structure
 
 ```
