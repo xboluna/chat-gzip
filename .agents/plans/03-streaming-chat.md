@@ -34,6 +34,11 @@ Each iteration of `gzipt.generate_stream()` commits a span (up to ~24 bytes). Th
 | SSE over WebSockets | Unidirectional server→client; works with `fetch` + POST body |
 | `?stream=1` query param | Same validation and route; JSON clients unchanged |
 | Sanitize full buffer, yield delta | Handles UTF-8 boundaries; `sanitize_output` may collapse whitespace across chunk boundaries |
+| `horizon=4`, `beam_width=8` | Smaller spans (~4 bytes) with ~50–100ms gaps instead of ~24-byte / ~900ms bursts |
+| Corpus + alphabet `lru_cache` | Avoids re-reading files and rebuilding alphabets per request |
+| Shared `ThreadPoolExecutor` | Avoids pool cold-start on every generation |
+| `warm_runtime_caches()` on boot | Preloads corpora and worker pool for serverless instances |
+| 2-char SSE micro-chunks | Smoother typewriter feel within each committed span |
 | No Vercel AI SDK | Custom zlib generator; AI SDK adds no value here |
 
 ## Open questions
