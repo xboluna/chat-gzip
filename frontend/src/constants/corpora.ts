@@ -25,7 +25,7 @@ export const CORPUS_DESCRIPTIONS: Record<string, string> = {
   'vc-glossary':
     "Term sheets, cap tables, and sentences that start with 'We're a platform for…'",
   copypasta:
-    'Navy SEAL copypasta and meme-war dispatch logs. Maximum entropy, zero coherence.',
+    'Meme-war dispatch logs. Maximum entropy, zero coherence.',
   'tech-twitter':
     'Hot takes, thread hooks, and startups cosplaying as AI companies.',
   'sports-commentary':
