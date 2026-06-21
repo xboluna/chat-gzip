@@ -37,10 +37,22 @@ CORPORA: tuple[CorpusSpec, ...] = (
 DEFAULT_CORPUS_ID = "tiny-shakespeare"
 
 
+def corpus_byte_length(spec: CorpusSpec) -> int:
+    path = DATA_DIR / spec.filename
+    if path.is_file():
+        return path.stat().st_size
+    return 0
+
+
 def corpus_catalog() -> dict:
     return {
         "corpora": [
-            {"id": c.id, "label": c.label, "enabled": c.enabled}
+            {
+                "id": c.id,
+                "label": c.label,
+                "enabled": c.enabled,
+                "byte_length": corpus_byte_length(c),
+            }
             for c in CORPORA
         ],
         "default": DEFAULT_CORPUS_ID,

@@ -12,6 +12,7 @@ export type CorpusRecord = {
   id: string
   label: string
   enabled: boolean
+  byte_length: number
 }
 
 export type CorporaResponse = {

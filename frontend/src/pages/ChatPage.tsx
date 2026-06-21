@@ -3,7 +3,11 @@ import { ChatInput } from '../components/ChatInput'
 import { ContextBar } from '../components/ContextBar'
 import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
-import { DEFAULT_CORPUS_ID } from '../constants/corpora'
+import {
+  CORPUS_BYTE_LENGTHS,
+  CORPUS_OPTIONS,
+  DEFAULT_CORPUS_ID,
+} from '../constants/corpora'
 import {
   DEFAULT_MAX_BYTES_TIER,
   DEFAULT_TEMPERATURE_TIER,
@@ -28,7 +32,7 @@ export default function ChatPage() {
   const [draft, setDraft] = useState('')
   const [corpusId, setCorpusId] = useState(DEFAULT_CORPUS_ID)
   const [corpora, setCorpora] = useState<
-    Array<{ id: string; label: string; enabled: boolean }>
+    Array<{ id: string; label: string; enabled: boolean; byteLength: number }>
   >([])
   const [temperatureTier, setTemperatureTier] = useState<TemperatureTier>(
     DEFAULT_TEMPERATURE_TIER,
@@ -45,13 +49,18 @@ export default function ChatPage() {
   useEffect(() => {
     fetchCorpora()
       .then((data) => {
-        setCorpora(data.corpora)
+        setCorpora(
+          data.corpora.map((corpus) => ({
+            id: corpus.id,
+            label: corpus.label,
+            enabled: corpus.enabled,
+            byteLength: corpus.byte_length,
+          })),
+        )
         setCorpusId(data.default)
       })
       .catch(() => {
-        setCorpora([
-          { id: DEFAULT_CORPUS_ID, label: 'Tiny Shakespeare', enabled: true },
-        ])
+        setCorpora(CORPUS_OPTIONS)
       })
   }, [])
 
@@ -67,7 +76,15 @@ export default function ChatPage() {
     return utf8ByteLength(buildPromptFromMessages(projectedMessages))
   }, [projectedMessages])
 
-  const contextBytes = liveContextBytes
+  const userContextBytes = liveContextBytes
+
+  const corpusByteLength = useMemo(() => {
+    return (
+      corpora.find((corpus) => corpus.id === corpusId)?.byteLength ??
+      CORPUS_BYTE_LENGTHS[corpusId] ??
+      0
+    )
+  }, [corpora, corpusId])
 
   const corpusLabel = useMemo(() => {
     return (
@@ -158,7 +175,10 @@ export default function ChatPage() {
             </label>
           </div>
 
-          <ContextBar bytes={contextBytes} />
+          <ContextBar
+            corpusBytes={corpusByteLength}
+            userBytes={userContextBytes}
+          />
         </div>
       </header>
 

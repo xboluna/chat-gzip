@@ -2,17 +2,64 @@ export type CorpusOption = {
   id: string
   label: string
   enabled: boolean
+  byteLength: number
 }
 
 /** UI catalog — backend `/api/corpora` is authoritative for loadable corpora. */
+/** Fallback byte lengths when `/api/corpora` is unavailable (matches `data/*.txt`). */
+export const CORPUS_BYTE_LENGTHS: Record<string, number> = {
+  'tiny-shakespeare': 1_115_394,
+  'http-status': 1_750,
+  'movie-quotes': 32_768,
+  'vc-glossary': 22_046,
+  copypasta: 32_768,
+  'tech-twitter': 4_156,
+  'sports-commentary': 3_423,
+}
+
 export const CORPUS_OPTIONS: CorpusOption[] = [
-  { id: 'tiny-shakespeare', label: 'Tiny Shakespeare', enabled: true },
-  { id: 'http-status', label: 'server said no', enabled: true },
-  { id: 'movie-quotes', label: 'and the oscar goes to', enabled: true },
-  { id: 'vc-glossary', label: 'VC slop', enabled: true },
-  { id: 'copypasta', label: 'navy seal energy', enabled: true },
-  { id: 'tech-twitter', label: 'twitterverse', enabled: true },
-  { id: 'sports-commentary', label: 'GOOOAL', enabled: true },
+  {
+    id: 'tiny-shakespeare',
+    label: 'Tiny Shakespeare',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS['tiny-shakespeare'],
+  },
+  {
+    id: 'http-status',
+    label: 'server said no',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS['http-status'],
+  },
+  {
+    id: 'movie-quotes',
+    label: 'and the oscar goes to',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS['movie-quotes'],
+  },
+  {
+    id: 'vc-glossary',
+    label: 'VC slop',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS['vc-glossary'],
+  },
+  {
+    id: 'copypasta',
+    label: 'navy seal energy',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS.copypasta,
+  },
+  {
+    id: 'tech-twitter',
+    label: 'twitterverse',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS['tech-twitter'],
+  },
+  {
+    id: 'sports-commentary',
+    label: 'GOOOAL',
+    enabled: true,
+    byteLength: CORPUS_BYTE_LENGTHS['sports-commentary'],
+  },
 ]
 
 export const DEFAULT_CORPUS_ID = 'tiny-shakespeare'
