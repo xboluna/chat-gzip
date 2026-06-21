@@ -36,13 +36,11 @@ const MAX_BYTES_OPTIONS = Object.entries(MAX_BYTES_TIERS).map(([key, bytes]) => 
   key,
   label: key,
   color:
-    bytes >= 1048
+    bytes >= 512
       ? ('ludicrous' as const)
-      : bytes >= 512
+      : bytes >= 256
         ? ('rainbow' as const)
-        : bytes >= 256
-          ? ('glow' as const)
-          : 'var(--pui-temp-medium)',
+        : 'var(--pui-temp-medium)',
 }))
 
 export function GenerationControls({
