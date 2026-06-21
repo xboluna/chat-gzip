@@ -4,6 +4,7 @@ import { CorpusDrawer } from '../components/CorpusDrawer'
 import { ContextDrawer } from '../components/ContextDrawer'
 import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
+import { SuggestionBubbles } from '../components/SuggestionBubbles'
 import {
   CORPUS_BYTE_LENGTHS,
   CORPUS_DESCRIPTIONS,
@@ -11,6 +12,7 @@ import {
   DEFAULT_CORPUS_ID,
   type CorpusOption,
 } from '../constants/corpora'
+import { suggestionsForCorpus } from '../constants/suggestions'
 import {
   DEFAULT_MAX_BYTES_TIER,
   DEFAULT_TEMPERATURE_TIER,
@@ -96,6 +98,14 @@ export default function ChatPage() {
       corpora.find((corpus) => corpus.id === corpusId)?.label ?? 'Tiny Shakespeare'
     )
   }, [corpora, corpusId])
+
+  const suggestions = useMemo(
+    () => suggestionsForCorpus(corpusId),
+    [corpusId],
+  )
+
+  const showSuggestions =
+    messages.length === 0 && draft.length === 0 && suggestions.length > 0
 
   useEffect(() => {
     const node = listRef.current
@@ -193,6 +203,14 @@ export default function ChatPage() {
             <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
               {error}
             </p>
+          )}
+
+          {showSuggestions && (
+            <SuggestionBubbles
+              suggestions={suggestions}
+              disabled={pending}
+              onSelect={setDraft}
+            />
           )}
 
           <ChatInput
