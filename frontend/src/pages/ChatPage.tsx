@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChatInput } from '../components/ChatInput'
-import { ContextPanel } from '../components/ContextPanel'
+import { CorpusDrawer } from '../components/CorpusDrawer'
+import { ContextDrawer } from '../components/ContextDrawer'
 import { GenerationDrawer } from '../components/GenerationDrawer'
 import { MessageList } from '../components/MessageList'
 import {
   CORPUS_BYTE_LENGTHS,
+  CORPUS_DESCRIPTIONS,
   CORPUS_OPTIONS,
   DEFAULT_CORPUS_ID,
+  type CorpusOption,
 } from '../constants/corpora'
 import {
   DEFAULT_MAX_BYTES_TIER,
@@ -31,9 +34,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
   const [corpusId, setCorpusId] = useState(DEFAULT_CORPUS_ID)
-  const [corpora, setCorpora] = useState<
-    Array<{ id: string; label: string; enabled: boolean; byteLength: number }>
-  >([])
+  const [corpora, setCorpora] = useState<CorpusOption[]>([])
   const [temperatureTier, setTemperatureTier] = useState<TemperatureTier>(
     DEFAULT_TEMPERATURE_TIER,
   )
@@ -53,6 +54,10 @@ export default function ChatPage() {
           data.corpora.map((corpus) => ({
             id: corpus.id,
             label: corpus.label,
+            description:
+              corpus.description ||
+              CORPUS_DESCRIPTIONS[corpus.id] ||
+              '',
             enabled: corpus.enabled,
             byteLength: corpus.byte_length,
           })),
@@ -152,13 +157,17 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <ContextPanel
+      <CorpusDrawer
         corpusId={corpusId}
         corpora={corpora}
+        disabled={pending}
+        onCorpusChange={setCorpusId}
+      />
+
+      <ContextDrawer
         corpusBytes={corpusByteLength}
         userBytes={userContextBytes}
         disabled={pending}
-        onCorpusChange={setCorpusId}
       />
 
       <GenerationDrawer

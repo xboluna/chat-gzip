@@ -11,6 +11,7 @@ export type HealthResponse = {
 export type CorpusRecord = {
   id: string
   label: string
+  description: string
   enabled: boolean
   byte_length: number
 }
