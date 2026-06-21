@@ -23,11 +23,11 @@ export function GenerationDrawer({
   onMaxBytesTierChange,
 }: GenerationDrawerProps) {
   const summary = (
-    <>
+    <span className="font-mono">
       {temperatureTier} · {maxBytesTier} (
       {TEMPERATURE_TIERS[temperatureTier].toFixed(1)},{' '}
       {MAX_BYTES_TIERS[maxBytesTier]}b)
-    </>
+    </span>
   )
 
   return (

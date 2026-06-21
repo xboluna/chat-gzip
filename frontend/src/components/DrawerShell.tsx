@@ -47,8 +47,8 @@ export function DrawerShell({
           <span className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-500">
             {label}
           </span>
-          <span className="flex min-w-0 items-center gap-2 text-xs text-zinc-500">
-            <span className="truncate font-mono text-zinc-400">{summary}</span>
+          <span className="flex min-w-0 flex-1 items-center justify-end gap-2 text-xs text-zinc-500">
+            <span className="min-w-0 flex-1 text-right text-zinc-400">{summary}</span>
             <ChevronIcon open={open} />
           </span>
         </button>
