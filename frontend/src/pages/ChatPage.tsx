@@ -9,18 +9,11 @@ import {
   CORPUS_BYTE_LENGTHS,
   CORPUS_DESCRIPTIONS,
   CORPUS_OPTIONS,
-  DEFAULT_CORPUS_ID,
   type CorpusOption,
 } from '../constants/corpora'
 import { suggestionsForCorpus } from '../constants/suggestions'
-import {
-  DEFAULT_MAX_BYTES_TIER,
-  DEFAULT_TEMPERATURE_TIER,
-  maxBytesForTier,
-  temperatureForTier,
-  type MaxBytesTier,
-  type TemperatureTier,
-} from '../constants/generation'
+import { maxBytesForTier, temperatureForTier } from '../constants/generation'
+import { useModelSettings } from '../hooks/useModelSettings'
 import {
   type ChatMessage,
   fetchCorpora,
@@ -35,14 +28,16 @@ import {
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
-  const [corpusId, setCorpusId] = useState(DEFAULT_CORPUS_ID)
   const [corpora, setCorpora] = useState<CorpusOption[]>([])
-  const [temperatureTier, setTemperatureTier] = useState<TemperatureTier>(
-    DEFAULT_TEMPERATURE_TIER,
-  )
-  const [maxBytesTier, setMaxBytesTier] = useState<MaxBytesTier>(
-    DEFAULT_MAX_BYTES_TIER,
-  )
+  const {
+    corpusId,
+    temperatureTier,
+    maxBytesTier,
+    setCorpusId,
+    setTemperatureTier,
+    setMaxBytesTier,
+    applyServerDefaultCorpus,
+  } = useModelSettings()
   const [pending, setPending] = useState(false)
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -64,12 +59,12 @@ export default function ChatPage() {
             byteLength: corpus.byte_length,
           })),
         )
-        setCorpusId(data.default)
+        applyServerDefaultCorpus(data.default)
       })
       .catch(() => {
         setCorpora(CORPUS_OPTIONS)
       })
-  }, [])
+  }, [applyServerDefaultCorpus])
 
   const projectedMessages = useMemo(() => {
     const trimmed = draft.trim()

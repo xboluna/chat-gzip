@@ -6,6 +6,8 @@ A chat interface for talking to a **gzip language model**—text generation via 
 
 Before the first message, the chat footer shows **corpus-specific suggestion bubbles** (see `frontend/src/constants/suggestions.ts`). They hide as soon as the user types or sends a message.
 
+**Shareable model presets:** corpus, temperature, and output length are reflected in the URL query string (`?corpus=…&temperature=…&length=…`) so you can link to a specific configuration. Tier keys match the UI controls (e.g. `corpus=copypasta`, `temperature=ludicrous`, `length=chapter`). Omitted params use defaults.
+
 ## Stack
 
 | Layer | Technology |
