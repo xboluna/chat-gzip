@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { CorpusOption } from '../constants/corpora'
+import { CorpusIcon } from './CorpusIcon'
 import { CorpusSelector } from './CorpusSelector'
 import { DrawerShell } from './DrawerShell'
 
@@ -16,12 +17,18 @@ export function CorpusDrawer({
   disabled = false,
   onCorpusChange,
 }: CorpusDrawerProps) {
-  const selectedLabel = useMemo(() => {
-    return corpora.find((corpus) => corpus.id === corpusId)?.label ?? corpusId
+  const summary = useMemo(() => {
+    const label = corpora.find((corpus) => corpus.id === corpusId)?.label ?? corpusId
+    return (
+      <span className="inline-flex items-center gap-2">
+        <CorpusIcon corpusId={corpusId} className="h-5 w-5 shrink-0" />
+        <span className="truncate">{label}</span>
+      </span>
+    )
   }, [corpora, corpusId])
 
   return (
-    <DrawerShell label="Corpus" summary={selectedLabel} disabled={disabled}>
+    <DrawerShell label="Corpus" summary={summary} disabled={disabled}>
       <CorpusSelector
         corpusId={corpusId}
         corpora={corpora}

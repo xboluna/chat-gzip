@@ -1,4 +1,5 @@
 import type { CorpusOption } from '../constants/corpora'
+import { CorpusIcon } from './CorpusIcon'
 
 type CorpusSelectorProps = {
   corpusId: string
@@ -34,7 +35,8 @@ export function CorpusSelector({
             } disabled:cursor-not-allowed disabled:opacity-50`}
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 space-y-1">
+              <CorpusIcon corpusId={corpus.id} />
+              <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`text-sm font-medium ${
