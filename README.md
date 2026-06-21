@@ -4,6 +4,8 @@ A chat interface for talking to a **gzip language model**—text generation via 
 
 > The only LLM with zero parameters and a 32 KiB context window.
 
+Before the first message, the chat footer shows **corpus-specific suggestion bubbles** (see `frontend/src/constants/suggestions.ts`). They hide as soon as the user types or sends a message.
+
 ## Stack
 
 | Layer | Technology |
@@ -116,7 +118,7 @@ chat-gzip/
 ├── data/
 │   ├── tiny-shakespeare.txt  # Default corpus
 │   └── …                     # See scripts/build_corpora.py for other corpus sources
-├── frontend/                 # React chat UI
+├── frontend/                 # React chat UI (suggestion bubbles, chat input, message list)
 ├── vercel.json
 └── package.json
 ```
