@@ -152,8 +152,8 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="border-b border-zinc-800 px-4 py-4 sm:px-6">
+    <div className="flex h-full flex-col overflow-hidden">
+      <header className="shrink-0 border-b border-zinc-800 px-4 py-4 sm:px-6">
         <div className="mx-auto w-full max-w-3xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
             chat-gzip
@@ -188,7 +188,10 @@ export default function ChatPage() {
         onMaxBytesTierChange={setMaxBytesTier}
       />
 
-      <div ref={listRef} className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+      <div
+        ref={listRef}
+        className="mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col overflow-y-auto"
+      >
         <MessageList
           messages={messages}
           pending={pending}
@@ -197,7 +200,7 @@ export default function ChatPage() {
         />
       </div>
 
-      <footer className="border-t border-zinc-800 px-4 py-4 sm:px-6">
+      <footer className="shrink-0 border-t border-zinc-800 px-4 py-4 sm:px-6">
         <div className="mx-auto w-full max-w-3xl space-y-3">
           {error && (
             <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
