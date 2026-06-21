@@ -11,7 +11,7 @@ export const CORPUS_OPTIONS: CorpusOption[] = [
   { id: 'http-status', label: 'server said no', enabled: true },
   { id: 'movie-quotes', label: 'and the oscar goes to', enabled: true },
   { id: 'genz-slang', label: 'young kids slang', enabled: true },
-  { id: 'vc-glossary', label: 'raise or die', enabled: true },
+  { id: 'vc-glossary', label: 'VC slop', enabled: true },
   { id: 'copypasta', label: 'navy seal energy', enabled: true },
   { id: 'tech-twitter', label: 'unpopular opinion dot com', enabled: true },
   { id: 'cocktails', label: 'shaken not stirred', enabled: true },
