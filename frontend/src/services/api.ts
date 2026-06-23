@@ -32,6 +32,8 @@ export type ChatMeta = {
   corpus_id: string
   temperature: number
   max_bytes: number
+  horizon: number
+  beam_width: number
   context_bytes: number
   context_limit_bytes: number
 }
@@ -68,6 +70,8 @@ export async function postChat(payload: {
   corpus_id: string
   temperature: number
   max_bytes: number
+  horizon: number
+  beam_width: number
   messages: ChatMessage[]
 }): Promise<ChatResponse> {
   const { data } = await api.post<ChatResponse>('/chat', payload)
@@ -99,6 +103,8 @@ export async function postChatStream(
     corpus_id: string
     temperature: number
     max_bytes: number
+    horizon: number
+    beam_width: number
     messages: ChatMessage[]
   },
   handlers: ChatStreamHandlers,

@@ -109,6 +109,8 @@ def generate_reply_stream(
     messages: list[dict[str, Any]],
     temperature: float = DEFAULT_TEMPERATURE,
     max_bytes: int = DEFAULT_MAX_BYTES,
+    horizon: int | None = None,
+    beam_width: int | None = None,
 ) -> Iterator[ChatStreamEvent]:
     prompt_text = build_prompt(messages)
     prompt_bytes = prompt_text.encode("utf-8", errors="replace")
@@ -124,13 +126,15 @@ def generate_reply_stream(
     started = time.perf_counter()
     raw = bytearray()
     last_sanitized_len = 0
+    resolved_horizon = horizon if horizon is not None else DEFAULT_HORIZON
+    resolved_beam_width = beam_width if beam_width is not None else DEFAULT_BEAM_WIDTH
 
     for kind, payload in gzipt.generate_stream_events(
         params.corpus,
         params.prompt_bytes,
         params.max_bytes,
-        beam_width=DEFAULT_BEAM_WIDTH,
-        horizon=DEFAULT_HORIZON,
+        beam_width=resolved_beam_width,
+        horizon=resolved_horizon,
         level=DEFAULT_COMPRESSION_LEVEL,
         workers=DEFAULT_WORKERS,
         temperature=params.temperature,
@@ -162,6 +166,8 @@ def generate_reply_stream(
             "corpus_id": corpus_id,
             "temperature": params.temperature,
             "max_bytes": params.max_bytes,
+            "horizon": resolved_horizon,
+            "beam_width": resolved_beam_width,
             "context_bytes": context_bytes,
             "context_limit_bytes": CONTEXT_LIMIT_BYTES,
         },
@@ -174,6 +180,8 @@ def generate_reply(
     messages: list[dict[str, Any]],
     temperature: float = DEFAULT_TEMPERATURE,
     max_bytes: int = DEFAULT_MAX_BYTES,
+    horizon: int | None = None,
+    beam_width: int | None = None,
 ) -> dict[str, Any]:
     prompt_text = build_prompt(messages)
     prompt_bytes = prompt_text.encode("utf-8", errors="replace")
@@ -187,12 +195,14 @@ def generate_reply(
     )
 
     started = time.perf_counter()
+    resolved_horizon = horizon if horizon is not None else DEFAULT_HORIZON
+    resolved_beam_width = beam_width if beam_width is not None else DEFAULT_BEAM_WIDTH
     raw = gzipt.generate(
         params.corpus,
         params.prompt_bytes,
         params.max_bytes,
-        beam_width=DEFAULT_BEAM_WIDTH,
-        horizon=DEFAULT_HORIZON,
+        beam_width=resolved_beam_width,
+        horizon=resolved_horizon,
         level=DEFAULT_COMPRESSION_LEVEL,
         workers=DEFAULT_WORKERS,
         temperature=params.temperature,
@@ -211,6 +221,8 @@ def generate_reply(
             "corpus_id": corpus_id,
             "temperature": params.temperature,
             "max_bytes": params.max_bytes,
+            "horizon": resolved_horizon,
+            "beam_width": resolved_beam_width,
             "context_bytes": context_bytes,
             "context_limit_bytes": CONTEXT_LIMIT_BYTES,
         },

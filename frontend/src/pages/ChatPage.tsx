@@ -14,7 +14,7 @@ import {
   type CorpusOption,
 } from '../constants/corpora'
 import { suggestionsForCorpus } from '../constants/suggestions'
-import { maxBytesForTier, temperatureForTier } from '../constants/generation'
+import { resolveGenerationParams } from '../constants/generation'
 import { useModelSettings } from '../hooks/useModelSettings'
 import {
   type ChatMessage,
@@ -37,11 +37,17 @@ export default function ChatPage() {
   const [corpora, setCorpora] = useState<CorpusOption[]>([])
   const {
     corpusId,
+    generationMode,
     temperatureTier,
     maxBytesTier,
+    advancedHorizonTier,
+    advancedBeamWidthTier,
     setCorpusId,
+    setGenerationMode,
     setTemperatureTier,
     setMaxBytesTier,
+    setAdvancedHorizonTier,
+    setAdvancedBeamWidthTier,
     applyServerDefaultCorpus,
   } = useModelSettings()
   const [pending, setPending] = useState(false)
@@ -111,6 +117,24 @@ export default function ChatPage() {
     [corpusId],
   )
 
+  const generationParams = useMemo(
+    () =>
+      resolveGenerationParams(
+        generationMode,
+        temperatureTier,
+        maxBytesTier,
+        advancedHorizonTier,
+        advancedBeamWidthTier,
+      ),
+    [
+      generationMode,
+      temperatureTier,
+      maxBytesTier,
+      advancedHorizonTier,
+      advancedBeamWidthTier,
+    ],
+  )
+
   const showSuggestions =
     messages.length === 0 && draft.length === 0 && suggestions.length > 0
 
@@ -158,8 +182,7 @@ export default function ChatPage() {
       await postChatStream(
         {
           corpus_id: corpusId,
-          temperature: temperatureForTier(temperatureTier),
-          max_bytes: maxBytesForTier(maxBytesTier),
+          ...generationParams,
           messages: nextMessages,
         },
         {
@@ -206,8 +229,11 @@ export default function ChatPage() {
     setInfoOpen(true)
     syncModelSettingsToUrl(
       corpusId,
+      generationMode,
       temperatureTier,
       maxBytesTier,
+      advancedHorizonTier,
+      advancedBeamWidthTier,
       true,
     )
   }
@@ -216,8 +242,11 @@ export default function ChatPage() {
     setInfoOpen(false)
     syncModelSettingsToUrl(
       corpusId,
+      generationMode,
       temperatureTier,
       maxBytesTier,
+      advancedHorizonTier,
+      advancedBeamWidthTier,
       false,
     )
   }
@@ -255,11 +284,17 @@ export default function ChatPage() {
       />
 
       <GenerationDrawer
+        generationMode={generationMode}
         temperatureTier={temperatureTier}
         maxBytesTier={maxBytesTier}
+        advancedHorizonTier={advancedHorizonTier}
+        advancedBeamWidthTier={advancedBeamWidthTier}
         disabled={pending}
+        onGenerationModeChange={setGenerationMode}
         onTemperatureTierChange={setTemperatureTier}
         onMaxBytesTierChange={setMaxBytesTier}
+        onAdvancedHorizonTierChange={setAdvancedHorizonTier}
+        onAdvancedBeamWidthTierChange={setAdvancedBeamWidthTier}
       />
 
       <div

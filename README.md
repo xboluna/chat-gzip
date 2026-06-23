@@ -8,7 +8,7 @@ The header **"What's happening?"** button opens an explainer modal (`frontend/sr
 
 Before the first message, the chat footer shows **corpus-specific suggestion bubbles** (see `frontend/src/constants/suggestions.ts`). They hide as soon as the user types or sends a message.
 
-**Shareable model presets:** corpus, temperature, and output length are reflected in the URL query string (`?corpus=…&temperature=…&length=…`) so you can link to a specific configuration. Tier keys match the UI controls (e.g. `corpus=copypasta`, `temperature=ludicrous`, `length=chapter`). Omitted params use defaults.
+**Shareable model presets:** corpus, temperature, output length, and optional advanced beam settings are reflected in the URL query string (`?corpus=…&temperature=…&length=…&advanced=1&horizon=…&beam=…`). Tier keys match the UI controls (e.g. `corpus=copypasta`, `temperature=ludicrous`, `length=chapter`, `advanced=1&horizon=long&beam=wide`). Omitted params use defaults.
 
 **Shareable explainer link:** append `info=1` (e.g. `/?info=1`) to open the "What's happening?" modal on load. Closing the modal removes the param; changing model settings while the modal is open keeps it in the URL.
 
@@ -81,6 +81,8 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
   "corpus_id": "tiny-shakespeare",
   "temperature": 1.0,
   "max_bytes": 64,
+  "horizon": 12,
+  "beam_width": 16,
   "messages": [
     { "role": "user", "content": "MENENIUS:\n" }
   ]
@@ -89,7 +91,7 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 
 Messages are joined by newlines to form the gzip prompt. The last message must be from the user.
 
-`temperature` is clamped to `[0.2, 2.0]` (0.2 = low / compressible, 2.0 = ludicrous). `max_bytes` is the generation byte budget, clamped to `[32, 512]`; generation halts on null bytes or when the budget is exhausted.
+`temperature` is clamped to `[0.2, 2.0]` (0.2 = low / compressible, 2.0 = ludicrous). `max_bytes` is the generation byte budget, clamped to `[32, 512]`; generation halts on null bytes or when the budget is exhausted. `horizon` (span length, `[2, 24]`) and `beam_width` (`[4, 32]`) control beam-search depth; the UI preset temperature tiers set all three together, while advanced mode sends explicit `horizon` / `beam_width` and fixes temperature at `1.0`.
 
 **Response:**
 
@@ -102,6 +104,8 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
     "corpus_id": "tiny-shakespeare",
     "temperature": 1.0,
     "max_bytes": 64,
+    "horizon": 12,
+    "beam_width": 16,
     "context_bytes": 9,
     "context_limit_bytes": 32768
   }
