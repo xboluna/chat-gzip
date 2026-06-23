@@ -47,12 +47,17 @@ class ChatChunkEvent(TypedDict):
     content: str
 
 
+class ChatPreviewEvent(TypedDict):
+    type: Literal["preview"]
+    content: str
+
+
 class ChatDoneEvent(TypedDict):
     type: Literal["done"]
     meta: dict[str, Any]
 
 
-ChatStreamEvent = ChatChunkEvent | ChatDoneEvent
+ChatStreamEvent = ChatChunkEvent | ChatPreviewEvent | ChatDoneEvent
 
 
 @dataclass(frozen=True)
@@ -86,6 +91,18 @@ def _generation_params(
     )
 
 
+def _preview_suffix(committed_raw: bytes, tentative: bytes) -> str:
+    if not tentative:
+        return ""
+    committed_text = sanitize_output(committed_raw.decode("utf-8", errors="replace"))
+    combined_text = sanitize_output(
+        (committed_raw + tentative).decode("utf-8", errors="replace"),
+    )
+    if combined_text.startswith(committed_text):
+        return combined_text[len(committed_text) :]
+    return sanitize_output(tentative.decode("utf-8", errors="replace"))
+
+
 def generate_reply_stream(
     *,
     corpus_id: str,
@@ -108,7 +125,7 @@ def generate_reply_stream(
     raw = bytearray()
     last_sanitized_len = 0
 
-    for span in gzipt.generate_stream(
+    for kind, payload in gzipt.generate_stream_events(
         params.corpus,
         params.prompt_bytes,
         params.max_bytes,
@@ -120,7 +137,14 @@ def generate_reply_stream(
         alphabet=params.alphabet,
         stop_sequences=DEFAULT_STOP_SEQUENCES,
     ):
-        raw.extend(span)
+        if kind == "preview":
+            yield {
+                "type": "preview",
+                "content": _preview_suffix(raw, payload),
+            }
+            continue
+
+        raw.extend(payload)
         sanitized = sanitize_output(raw.decode("utf-8", errors="replace"))
         if len(sanitized) > last_sanitized_len:
             yield {

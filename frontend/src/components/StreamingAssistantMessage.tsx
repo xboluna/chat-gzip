@@ -7,16 +7,20 @@ const SPINNER_VERBS = [...WIBBLING_SPINNER_VERBS, ...GZIP_VERBS]
 
 type StreamingAssistantMessageProps = {
   content: string
+  preview?: string
   startedAt: number
   isStreaming: boolean
 }
 
 export function StreamingAssistantMessage({
   content,
+  preview = '',
   startedAt,
   isStreaming,
 }: StreamingAssistantMessageProps) {
   const bytes = utf8ByteLength(content)
+  const showPreview = isStreaming && preview.length > 0
+  const showText = content.length > 0 || showPreview
 
   return (
     <div
@@ -26,9 +30,12 @@ export function StreamingAssistantMessage({
           : 'border-zinc-800 bg-zinc-900/80 text-zinc-200'
       }`}
     >
-      {content ? (
+      {showText ? (
         <p className="whitespace-pre-wrap">
           {content}
+          {showPreview && (
+            <span className="text-emerald-300/35">{preview}</span>
+          )}
           {isStreaming && (
             <span
               aria-hidden

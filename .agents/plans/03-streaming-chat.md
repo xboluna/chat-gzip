@@ -15,7 +15,8 @@ Each iteration of `gzipt.generate_stream()` commits a span (up to `horizon` byte
 
 | Event | Payload |
 |-------|---------|
-| `chunk` | `{ "type": "chunk", "content": "…" }` — sanitized UTF-8 delta |
+| `preview` | `{ "type": "preview", "content": "…" }` — tentative beam leader while searching |
+| `chunk` | `{ "type": "chunk", "content": "…" }` — sanitized UTF-8 delta (committed) |
 | `done` | `{ "type": "done", "meta": { … } }` — same meta as JSON response |
 | `error` | `{ "message": "…" }` — mid-stream failure |
 
@@ -39,6 +40,7 @@ Each iteration of `gzipt.generate_stream()` commits a span (up to `horizon` byte
 | Shared `ThreadPoolExecutor` | Avoids pool cold-start on every generation |
 | `warm_runtime_caches()` on boot | Preloads corpora and worker pool for serverless instances |
 | One SSE event per committed span | Streams whole beam-search commits—not 2-char fragments |
+| `preview` events during beam search | Shows the current greedy beam leader byte-by-byte while each span is searched |
 | No Vercel AI SDK | Custom zlib generator; AI SDK adds no value here |
 
 ## Open questions

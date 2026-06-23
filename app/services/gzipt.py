@@ -5,11 +5,13 @@ Vendored from https://github.com/nathan-barry/gzipt with stop-sequence support.
 
 from __future__ import annotations
 
+import heapq
 import math
 import random
 import zlib
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
+from typing import Literal
 
 GZIP_WINDOW = 32768
 DEFAULT_WINDOW = 30000
@@ -76,7 +78,10 @@ def _truncate_at_stop(text: bytes, stop_sequences: tuple[bytes, ...]) -> tuple[b
     return text[:earliest], True
 
 
-def generate_stream(
+StreamKind = Literal["preview", "commit"]
+
+
+def generate_stream_events(
     corpus: bytes,
     prompt: bytes,
     length: int,
@@ -91,12 +96,8 @@ def generate_stream(
     alphabet: tuple[int, ...] | None = None,
     seed: int | None = None,
     stop_sequences: tuple[bytes, ...] = (b"\n\n", b"\x00"),
-) -> Iterator[bytes]:
-    """Yield each committed span while generating up to ``length`` bytes.
-
-    After each committed span, halts early if ``prompt + generated`` ends with
-    (or contains) any configured stop sequence.
-    """
+) -> Iterator[tuple[StreamKind, bytes]]:
+    """Yield beam-search previews while searching and commits when a span is chosen."""
     rng = random.Random(seed)
     if alphabet is None:
         alphabet = corpus_alphabet(corpus + prompt)
@@ -111,11 +112,12 @@ def generate_stream(
         beams: list[bytes] = [b""]
         beam_lens: list[int] = [0]
         for _ in range(horizon):
-            cand = [h + bytes([b]) for h in beams for b in alphabet]
+            cand = [h + bytes([byte]) for h in beams for byte in alphabet]
             lens = candidate_lengths(ctx, cand, level=level, pool=pool)
-            order = sorted(range(len(cand)), key=lens.__getitem__)[:beam_width]
+            order = heapq.nsmallest(beam_width, range(len(cand)), key=lens.__getitem__)
             beams = [cand[i] for i in order]
             beam_lens = [lens[i] for i in order]
+            yield ("preview", beams[0])
 
         if temperature <= 0:
             span = beams[0]
@@ -132,13 +134,50 @@ def generate_stream(
 
         new_bytes = bytes(out[prev_len:])
         if new_bytes:
-            yield new_bytes
+            yield ("commit", new_bytes)
+        yield ("preview", b"")
 
         if stopped:
             break
 
         if len(out) >= length:
             break
+
+
+def generate_stream(
+    corpus: bytes,
+    prompt: bytes,
+    length: int,
+    *,
+    window: int = DEFAULT_WINDOW,
+    horizon: int = 24,
+    beam_width: int = 32,
+    temperature: float = 0.5,
+    tail: int = 80,
+    level: int = 9,
+    workers: int = 1,
+    alphabet: tuple[int, ...] | None = None,
+    seed: int | None = None,
+    stop_sequences: tuple[bytes, ...] = (b"\n\n", b"\x00"),
+) -> Iterator[bytes]:
+    """Yield each committed span while generating up to ``length`` bytes."""
+    for kind, payload in generate_stream_events(
+        corpus,
+        prompt,
+        length,
+        window=window,
+        horizon=horizon,
+        beam_width=beam_width,
+        temperature=temperature,
+        tail=tail,
+        level=level,
+        workers=workers,
+        alphabet=alphabet,
+        seed=seed,
+        stop_sequences=stop_sequences,
+    ):
+        if kind == "commit":
+            yield payload
 
 
 def generate(

@@ -43,6 +43,7 @@ export type ChatResponse = {
 
 export type ChatStreamHandlers = {
   onChunk: (content: string) => void
+  onPreview: (content: string) => void
   onDone: (meta: ChatMeta) => void
 }
 
@@ -153,6 +154,11 @@ export async function postChatStream(
           const content = payloadJson.content
           if (typeof content === 'string' && content.length > 0) {
             handlers.onChunk(content)
+          }
+        } else if (parsed.event === 'preview') {
+          const content = payloadJson.content
+          if (typeof content === 'string') {
+            handlers.onPreview(content)
           }
         } else if (parsed.event === 'done') {
           const meta = payloadJson.meta

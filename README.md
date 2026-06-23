@@ -117,8 +117,11 @@ Default generation tuning (`horizon=12`, `beam_width=16`, zlib level 6) balances
 Same request body as above. Returns **Server-Sent Events** (`text/event-stream`) with one beam-search span per `chunk` event:
 
 ```
+event: preview
+data: {"type":"preview","content":"Th"}
+
 event: chunk
-data: {"type":"chunk","content":"Thou "}
+data: {"type":"chunk","content":"Thou art "}
 
 event: done
 data: {"type":"done","meta":{"elapsed_ms":980,"bytes_generated":42,...}}

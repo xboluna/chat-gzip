@@ -4,6 +4,7 @@ import { StreamingAssistantMessage } from './StreamingAssistantMessage'
 type MessageListProps = {
   messages: ChatMessage[]
   isStreaming: boolean
+  streamPreview: string
   pendingStartedAt: number | null
   corpusLabel: string
 }
@@ -11,6 +12,7 @@ type MessageListProps = {
 export function MessageList({
   messages,
   isStreaming,
+  streamPreview,
   pendingStartedAt,
   corpusLabel,
 }: MessageListProps) {
@@ -40,6 +42,7 @@ export function MessageList({
             {isActiveStream ? (
               <StreamingAssistantMessage
                 content={message.content}
+                preview={streamPreview}
                 startedAt={pendingStartedAt}
                 isStreaming
               />

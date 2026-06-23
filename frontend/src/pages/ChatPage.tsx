@@ -46,6 +46,7 @@ export default function ChatPage() {
   } = useModelSettings()
   const [pending, setPending] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
+  const [streamPreview, setStreamPreview] = useState('')
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [infoOpen, setInfoOpen] = useState(() =>
@@ -118,7 +119,7 @@ export default function ChatPage() {
     if (node) {
       node.scrollTop = node.scrollHeight
     }
-  }, [messages, isStreaming, draft])
+  }, [messages, isStreaming, streamPreview, draft])
 
   useEffect(() => {
     return () => {
@@ -150,6 +151,7 @@ export default function ChatPage() {
     setError(null)
     setPending(true)
     setIsStreaming(true)
+    setStreamPreview('')
     setPendingStartedAt(Date.now())
 
     try {
@@ -162,6 +164,7 @@ export default function ChatPage() {
         },
         {
           onChunk: (content) => {
+            setStreamPreview('')
             setMessages((current) => {
               const last = current[current.length - 1]
               if (!last || last.role !== 'assistant') {
@@ -172,6 +175,9 @@ export default function ChatPage() {
                 { ...last, content: last.content + content },
               ]
             })
+          },
+          onPreview: (content) => {
+            setStreamPreview(content)
           },
           onDone: () => {
             // Meta is available for future UI (timing, byte counts).
@@ -191,6 +197,7 @@ export default function ChatPage() {
       }
       setPending(false)
       setIsStreaming(false)
+      setStreamPreview('')
       setPendingStartedAt(null)
     }
   }
@@ -262,6 +269,7 @@ export default function ChatPage() {
         <MessageList
           messages={messages}
           isStreaming={isStreaming}
+          streamPreview={streamPreview}
           pendingStartedAt={pendingStartedAt}
           corpusLabel={corpusLabel}
         />
