@@ -4,7 +4,6 @@ import {
   MAX_BYTES_TIERS,
   TEMPERATURE_TIERS,
   type BeamWidthTier,
-  type GenerationMode,
   type HorizonTier,
   type MaxBytesTier,
   type TemperatureTier,
@@ -13,61 +12,49 @@ import { DrawerShell } from './DrawerShell'
 import { GenerationControls } from './GenerationControls'
 
 type GenerationDrawerProps = {
-  generationMode: GenerationMode
   temperatureTier: TemperatureTier
+  horizonTier: HorizonTier
+  beamWidthTier: BeamWidthTier
   maxBytesTier: MaxBytesTier
-  advancedHorizonTier: HorizonTier
-  advancedBeamWidthTier: BeamWidthTier
   disabled?: boolean
-  onGenerationModeChange: (mode: GenerationMode) => void
   onTemperatureTierChange: (tier: TemperatureTier) => void
+  onHorizonTierChange: (tier: HorizonTier) => void
+  onBeamWidthTierChange: (tier: BeamWidthTier) => void
   onMaxBytesTierChange: (tier: MaxBytesTier) => void
-  onAdvancedHorizonTierChange: (tier: HorizonTier) => void
-  onAdvancedBeamWidthTierChange: (tier: BeamWidthTier) => void
 }
 
 export function GenerationDrawer({
-  generationMode,
   temperatureTier,
+  horizonTier,
+  beamWidthTier,
   maxBytesTier,
-  advancedHorizonTier,
-  advancedBeamWidthTier,
   disabled = false,
-  onGenerationModeChange,
   onTemperatureTierChange,
+  onHorizonTierChange,
+  onBeamWidthTierChange,
   onMaxBytesTierChange,
-  onAdvancedHorizonTierChange,
-  onAdvancedBeamWidthTierChange,
 }: GenerationDrawerProps) {
-  const summary =
-    generationMode === 'advanced' ? (
-      <span className="font-mono">
-        advanced · h{HORIZON_TIERS[advancedHorizonTier]} bw
-        {BEAM_WIDTH_TIERS[advancedBeamWidthTier]} · {maxBytesTier} (
-        {MAX_BYTES_TIERS[maxBytesTier]}b)
-      </span>
-    ) : (
-      <span className="font-mono">
-        {temperatureTier} · {maxBytesTier} (
-        {TEMPERATURE_TIERS[temperatureTier].toFixed(1)},{' '}
-        {MAX_BYTES_TIERS[maxBytesTier]}b)
-      </span>
-    )
+  const summary = (
+    <span className="font-mono">
+      {temperatureTier} · h{HORIZON_TIERS[horizonTier]} · bw
+      {BEAM_WIDTH_TIERS[beamWidthTier]} · {maxBytesTier} (
+      {TEMPERATURE_TIERS[temperatureTier].toFixed(1)}, {MAX_BYTES_TIERS[maxBytesTier]}
+      b)
+    </span>
+  )
 
   return (
     <DrawerShell label="Generation" summary={summary} disabled={disabled}>
       <GenerationControls
-        generationMode={generationMode}
         temperatureTier={temperatureTier}
+        horizonTier={horizonTier}
+        beamWidthTier={beamWidthTier}
         maxBytesTier={maxBytesTier}
-        advancedHorizonTier={advancedHorizonTier}
-        advancedBeamWidthTier={advancedBeamWidthTier}
         disabled={disabled}
-        onGenerationModeChange={onGenerationModeChange}
         onTemperatureTierChange={onTemperatureTierChange}
+        onHorizonTierChange={onHorizonTierChange}
+        onBeamWidthTierChange={onBeamWidthTierChange}
         onMaxBytesTierChange={onMaxBytesTierChange}
-        onAdvancedHorizonTierChange={onAdvancedHorizonTierChange}
-        onAdvancedBeamWidthTierChange={onAdvancedBeamWidthTierChange}
       />
     </DrawerShell>
   )

@@ -37,17 +37,15 @@ export default function ChatPage() {
   const [corpora, setCorpora] = useState<CorpusOption[]>([])
   const {
     corpusId,
-    generationMode,
     temperatureTier,
+    horizonTier,
+    beamWidthTier,
     maxBytesTier,
-    advancedHorizonTier,
-    advancedBeamWidthTier,
     setCorpusId,
-    setGenerationMode,
     setTemperatureTier,
+    setHorizonTier,
+    setBeamWidthTier,
     setMaxBytesTier,
-    setAdvancedHorizonTier,
-    setAdvancedBeamWidthTier,
     applyServerDefaultCorpus,
   } = useModelSettings()
   const [pending, setPending] = useState(false)
@@ -120,19 +118,12 @@ export default function ChatPage() {
   const generationParams = useMemo(
     () =>
       resolveGenerationParams(
-        generationMode,
         temperatureTier,
+        horizonTier,
+        beamWidthTier,
         maxBytesTier,
-        advancedHorizonTier,
-        advancedBeamWidthTier,
       ),
-    [
-      generationMode,
-      temperatureTier,
-      maxBytesTier,
-      advancedHorizonTier,
-      advancedBeamWidthTier,
-    ],
+    [temperatureTier, horizonTier, beamWidthTier, maxBytesTier],
   )
 
   const showSuggestions =
@@ -229,11 +220,10 @@ export default function ChatPage() {
     setInfoOpen(true)
     syncModelSettingsToUrl(
       corpusId,
-      generationMode,
       temperatureTier,
+      horizonTier,
+      beamWidthTier,
       maxBytesTier,
-      advancedHorizonTier,
-      advancedBeamWidthTier,
       true,
     )
   }
@@ -242,11 +232,10 @@ export default function ChatPage() {
     setInfoOpen(false)
     syncModelSettingsToUrl(
       corpusId,
-      generationMode,
       temperatureTier,
+      horizonTier,
+      beamWidthTier,
       maxBytesTier,
-      advancedHorizonTier,
-      advancedBeamWidthTier,
       false,
     )
   }
@@ -284,17 +273,15 @@ export default function ChatPage() {
       />
 
       <GenerationDrawer
-        generationMode={generationMode}
         temperatureTier={temperatureTier}
+        horizonTier={horizonTier}
+        beamWidthTier={beamWidthTier}
         maxBytesTier={maxBytesTier}
-        advancedHorizonTier={advancedHorizonTier}
-        advancedBeamWidthTier={advancedBeamWidthTier}
         disabled={pending}
-        onGenerationModeChange={setGenerationMode}
         onTemperatureTierChange={setTemperatureTier}
+        onHorizonTierChange={setHorizonTier}
+        onBeamWidthTierChange={setBeamWidthTier}
         onMaxBytesTierChange={setMaxBytesTier}
-        onAdvancedHorizonTierChange={setAdvancedHorizonTier}
-        onAdvancedBeamWidthTierChange={setAdvancedBeamWidthTier}
       />
 
       <div

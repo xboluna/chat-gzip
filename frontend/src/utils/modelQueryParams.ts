@@ -2,7 +2,6 @@ import { DEFAULT_CORPUS_ID } from '../constants/corpora'
 import {
   BEAM_WIDTH_TIERS,
   DEFAULT_BEAM_WIDTH_TIER,
-  DEFAULT_GENERATION_MODE,
   DEFAULT_HORIZON_TIER,
   DEFAULT_MAX_BYTES_TIER,
   DEFAULT_TEMPERATURE_TIER,
@@ -10,7 +9,6 @@ import {
   MAX_BYTES_TIERS,
   TEMPERATURE_TIERS,
   type BeamWidthTier,
-  type GenerationMode,
   type HorizonTier,
   type MaxBytesTier,
   type TemperatureTier,
@@ -19,20 +17,18 @@ import {
 export const MODEL_QUERY_PARAMS = {
   corpus: 'corpus',
   temperature: 'temperature',
-  length: 'length',
-  advanced: 'advanced',
   horizon: 'horizon',
   beam: 'beam',
+  length: 'length',
   info: 'info',
 } as const
 
 export type ModelSettingsFromUrl = {
   corpusId?: string
-  generationMode?: GenerationMode
   temperatureTier?: TemperatureTier
+  horizonTier?: HorizonTier
+  beamWidthTier?: BeamWidthTier
   maxBytesTier?: MaxBytesTier
-  advancedHorizonTier?: HorizonTier
-  advancedBeamWidthTier?: BeamWidthTier
 }
 
 const KNOWN_CORPUS_IDS = new Set([
@@ -48,16 +44,16 @@ function isTemperatureTier(value: string): value is TemperatureTier {
   return value in TEMPERATURE_TIERS
 }
 
-function isMaxBytesTier(value: string): value is MaxBytesTier {
-  return value in MAX_BYTES_TIERS
-}
-
 function isHorizonTier(value: string): value is HorizonTier {
   return value in HORIZON_TIERS
 }
 
 function isBeamWidthTier(value: string): value is BeamWidthTier {
   return value in BEAM_WIDTH_TIERS
+}
+
+function isMaxBytesTier(value: string): value is MaxBytesTier {
+  return value in MAX_BYTES_TIERS
 }
 
 export function parseCorpusParam(value: string | null): string | undefined {
@@ -86,34 +82,31 @@ export function readModelSettingsFromSearch(
   const params = new URLSearchParams(search)
   const corpusId = parseCorpusParam(params.get(MODEL_QUERY_PARAMS.corpus))
   const temperatureRaw = params.get(MODEL_QUERY_PARAMS.temperature)
-  const lengthRaw = params.get(MODEL_QUERY_PARAMS.length)
-  const advanced = isTruthyParam(params.get(MODEL_QUERY_PARAMS.advanced))
   const horizonRaw = params.get(MODEL_QUERY_PARAMS.horizon)
   const beamRaw = params.get(MODEL_QUERY_PARAMS.beam)
+  const lengthRaw = params.get(MODEL_QUERY_PARAMS.length)
 
   return {
     ...(corpusId ? { corpusId } : {}),
-    ...(advanced ? { generationMode: 'advanced' as const } : {}),
     ...(temperatureRaw && isTemperatureTier(temperatureRaw)
       ? { temperatureTier: temperatureRaw }
       : {}),
-    ...(lengthRaw && isMaxBytesTier(lengthRaw) ? { maxBytesTier: lengthRaw } : {}),
     ...(horizonRaw && isHorizonTier(horizonRaw)
-      ? { advancedHorizonTier: horizonRaw }
+      ? { horizonTier: horizonRaw }
       : {}),
     ...(beamRaw && isBeamWidthTier(beamRaw)
-      ? { advancedBeamWidthTier: beamRaw }
+      ? { beamWidthTier: beamRaw }
       : {}),
+    ...(lengthRaw && isMaxBytesTier(lengthRaw) ? { maxBytesTier: lengthRaw } : {}),
   }
 }
 
 export function buildModelSettingsSearch(
   corpusId: string,
-  generationMode: GenerationMode,
   temperatureTier: TemperatureTier,
+  horizonTier: HorizonTier,
+  beamWidthTier: BeamWidthTier,
   maxBytesTier: MaxBytesTier,
-  advancedHorizonTier: HorizonTier,
-  advancedBeamWidthTier: BeamWidthTier,
   infoOpen = false,
 ): string {
   const params = new URLSearchParams()
@@ -121,16 +114,14 @@ export function buildModelSettingsSearch(
   if (corpusId !== DEFAULT_CORPUS_ID) {
     params.set(MODEL_QUERY_PARAMS.corpus, corpusId)
   }
-  if (generationMode === 'advanced') {
-    params.set(MODEL_QUERY_PARAMS.advanced, '1')
-    if (advancedHorizonTier !== DEFAULT_HORIZON_TIER) {
-      params.set(MODEL_QUERY_PARAMS.horizon, advancedHorizonTier)
-    }
-    if (advancedBeamWidthTier !== DEFAULT_BEAM_WIDTH_TIER) {
-      params.set(MODEL_QUERY_PARAMS.beam, advancedBeamWidthTier)
-    }
-  } else if (temperatureTier !== DEFAULT_TEMPERATURE_TIER) {
+  if (temperatureTier !== DEFAULT_TEMPERATURE_TIER) {
     params.set(MODEL_QUERY_PARAMS.temperature, temperatureTier)
+  }
+  if (horizonTier !== DEFAULT_HORIZON_TIER) {
+    params.set(MODEL_QUERY_PARAMS.horizon, horizonTier)
+  }
+  if (beamWidthTier !== DEFAULT_BEAM_WIDTH_TIER) {
+    params.set(MODEL_QUERY_PARAMS.beam, beamWidthTier)
   }
   if (maxBytesTier !== DEFAULT_MAX_BYTES_TIER) {
     params.set(MODEL_QUERY_PARAMS.length, maxBytesTier)
@@ -145,22 +136,20 @@ export function buildModelSettingsSearch(
 
 export function syncModelSettingsToUrl(
   corpusId: string,
-  generationMode: GenerationMode,
   temperatureTier: TemperatureTier,
+  horizonTier: HorizonTier,
+  beamWidthTier: BeamWidthTier,
   maxBytesTier: MaxBytesTier,
-  advancedHorizonTier: HorizonTier,
-  advancedBeamWidthTier: BeamWidthTier,
   infoOpen?: boolean,
 ): void {
   const resolvedInfoOpen =
     infoOpen ?? readInfoOpenFromSearch(window.location.search)
   const search = buildModelSettingsSearch(
     corpusId,
-    generationMode,
     temperatureTier,
+    horizonTier,
+    beamWidthTier,
     maxBytesTier,
-    advancedHorizonTier,
-    advancedBeamWidthTier,
     resolvedInfoOpen,
   )
   const nextUrl = `${window.location.pathname}${search}${window.location.hash}`
