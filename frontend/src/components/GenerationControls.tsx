@@ -90,26 +90,28 @@ export function GenerationControls({
   onMaxBytesTierChange,
 }: GenerationControlsProps) {
   return (
-    <div className="space-y-3">
-      <SlimTierSlider
-        label="Temperature"
-        valueLabel={TEMPERATURE_TIERS[temperatureTier].toFixed(1)}
-        disabled={disabled}
-      >
-        <Temperature
-          value={temperatureTier}
-          defaultValue={DEFAULT_TEMPERATURE_TIER}
-          labelLow="Compressible"
-          labelHigh="Chaotic"
-          options={TEMPERATURE_OPTIONS}
-          onChange={(key) => onTemperatureTierChange(key as TemperatureTier)}
-        />
-      </SlimTierSlider>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-5 md:gap-y-4">
+        <SlimTierSlider
+          label="Temperature"
+          tierName={temperatureTier}
+          detail={TEMPERATURE_TIERS[temperatureTier].toFixed(1)}
+          disabled={disabled}
+        >
+          <Temperature
+            value={temperatureTier}
+            defaultValue={DEFAULT_TEMPERATURE_TIER}
+            labelLow="Compressible"
+            labelHigh="Chaotic"
+            options={TEMPERATURE_OPTIONS}
+            onChange={(key) => onTemperatureTierChange(key as TemperatureTier)}
+          />
+        </SlimTierSlider>
 
-      <div className="grid gap-3 sm:grid-cols-2">
         <SlimTierSlider
           label="Horizon"
-          valueLabel={`${HORIZON_TIERS[horizonTier]} B/span`}
+          tierName={horizonTier}
+          detail={`${HORIZON_TIERS[horizonTier]} B/span`}
           disabled={disabled}
         >
           <Temperature
@@ -124,7 +126,8 @@ export function GenerationControls({
 
         <SlimTierSlider
           label="Beam width"
-          valueLabel={`${BEAM_WIDTH_TIERS[beamWidthTier]} wide`}
+          tierName={beamWidthTier}
+          detail={`${BEAM_WIDTH_TIERS[beamWidthTier]} paths`}
           disabled={disabled}
         >
           <Temperature
@@ -136,22 +139,23 @@ export function GenerationControls({
             onChange={(key) => onBeamWidthTierChange(key as BeamWidthTier)}
           />
         </SlimTierSlider>
-      </div>
 
-      <SlimTierSlider
-        label="Output length"
-        valueLabel={`${MAX_BYTES_TIERS[maxBytesTier]} bytes max`}
-        disabled={disabled}
-      >
-        <Temperature
-          value={maxBytesTier}
-          defaultValue={DEFAULT_MAX_BYTES_TIER}
-          labelLow="Terse"
-          labelHigh="Verbose"
-          options={MAX_BYTES_OPTIONS}
-          onChange={(key) => onMaxBytesTierChange(key as MaxBytesTier)}
-        />
-      </SlimTierSlider>
+        <SlimTierSlider
+          label="Output length"
+          tierName={maxBytesTier}
+          detail={`${MAX_BYTES_TIERS[maxBytesTier]} B`}
+          disabled={disabled}
+        >
+          <Temperature
+            value={maxBytesTier}
+            defaultValue={DEFAULT_MAX_BYTES_TIER}
+            labelLow="Terse"
+            labelHigh="Verbose"
+            options={MAX_BYTES_OPTIONS}
+            onChange={(key) => onMaxBytesTierChange(key as MaxBytesTier)}
+          />
+        </SlimTierSlider>
+      </div>
 
       {shouldWarnMaxBytesTimeout(maxBytesTier) ? (
         <p className="text-xs text-amber-400/90">

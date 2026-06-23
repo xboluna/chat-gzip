@@ -259,30 +259,32 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <CorpusDrawer
-        corpusId={corpusId}
-        corpora={corpora}
-        disabled={pending}
-        onCorpusChange={setCorpusId}
-      />
+      <div className="settings-scroll min-h-0 shrink-0 overflow-y-auto overscroll-contain border-b border-zinc-800">
+        <CorpusDrawer
+          corpusId={corpusId}
+          corpora={corpora}
+          disabled={pending}
+          onCorpusChange={setCorpusId}
+        />
 
-      <ContextDrawer
-        corpusBytes={corpusByteLength}
-        userBytes={userContextBytes}
-        disabled={pending}
-      />
+        <ContextDrawer
+          corpusBytes={corpusByteLength}
+          userBytes={userContextBytes}
+          disabled={pending}
+        />
 
-      <GenerationDrawer
-        temperatureTier={temperatureTier}
-        horizonTier={horizonTier}
-        beamWidthTier={beamWidthTier}
-        maxBytesTier={maxBytesTier}
-        disabled={pending}
-        onTemperatureTierChange={setTemperatureTier}
-        onHorizonTierChange={setHorizonTier}
-        onBeamWidthTierChange={setBeamWidthTier}
-        onMaxBytesTierChange={setMaxBytesTier}
-      />
+        <GenerationDrawer
+          temperatureTier={temperatureTier}
+          horizonTier={horizonTier}
+          beamWidthTier={beamWidthTier}
+          maxBytesTier={maxBytesTier}
+          disabled={pending}
+          onTemperatureTierChange={setTemperatureTier}
+          onHorizonTierChange={setHorizonTier}
+          onBeamWidthTierChange={setBeamWidthTier}
+          onMaxBytesTierChange={setMaxBytesTier}
+        />
+      </div>
 
       <div
         ref={listRef}
