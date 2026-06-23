@@ -110,7 +110,7 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
 
 Generation is capped by `max_bytes` per request (default 64 / snippet) with null-byte stop halting. Lengths at or above 512 bytes may time out.
 
-Default generation tuning (`horizon=4`, `beam_width=8`, zlib level 6) favors interactive latency over maximum search depth. Corpora and alphabets are cached in memory after first load; the worker thread pool is warmed at app startup.
+Default generation tuning (`horizon=12`, `beam_width=16`, zlib level 6) balances coherent ~12-byte beam-search spans with interactive streaming. Corpora and alphabets are cached in memory after first load; the worker thread pool is warmed at app startup.
 
 ### `POST /api/chat?stream=1`
 

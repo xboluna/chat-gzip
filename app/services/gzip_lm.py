@@ -18,7 +18,6 @@ from app.services.corpora import (
     MAX_GENERATED_BYTES,
     MIN_GENERATED_BYTES,
     MIN_TEMPERATURE,
-    SSE_CHUNK_CHARS,
     corpus_alphabet_for_id,
     load_corpus_bytes,
     merge_alphabet,
@@ -63,13 +62,6 @@ class GenerationParams:
     temperature: float
     max_bytes: int
     alphabet: tuple[int, ...]
-
-
-def _iter_sse_chunks(text: str) -> Iterator[str]:
-    for index in range(0, len(text), SSE_CHUNK_CHARS):
-        piece = text[index : index + SSE_CHUNK_CHARS]
-        if piece:
-            yield piece
 
 
 def _generation_params(
@@ -131,12 +123,10 @@ def generate_reply_stream(
         raw.extend(span)
         sanitized = sanitize_output(raw.decode("utf-8", errors="replace"))
         if len(sanitized) > last_sanitized_len:
-            delta = sanitized[last_sanitized_len:]
-            for piece in _iter_sse_chunks(delta):
-                yield {
-                    "type": "chunk",
-                    "content": piece,
-                }
+            yield {
+                "type": "chunk",
+                "content": sanitized[last_sanitized_len:],
+            }
             last_sanitized_len = len(sanitized)
 
     elapsed_ms = int((time.perf_counter() - started) * 1000)
