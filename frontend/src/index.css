@@ -16,3 +16,41 @@ body {
 :root {
   --accent: #34d399;
 }
+
+/* Slimmer performative-ui Temperature sliders in the generation drawer. */
+.generation-slider {
+  height: 4.25rem;
+}
+
+.generation-slider .pui-temperature {
+  min-height: 0;
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.generation-slider .pui-temperature__poles {
+  font-size: 10px;
+}
+
+.generation-slider .pui-temperature__track {
+  min-height: 1.25rem;
+  margin: 0;
+}
+
+.generation-slider .pui-temperature__level {
+  padding: 0;
+}
+
+/* Mobile: cap settings stack height so chat stays reachable; scroll inside. */
+.settings-scroll {
+  max-height: min(58vh, 540px);
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .settings-scroll {
+    max-height: none;
+    overflow: visible;
+  }
+}

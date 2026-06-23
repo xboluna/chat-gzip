@@ -14,7 +14,7 @@ import {
   type CorpusOption,
 } from '../constants/corpora'
 import { suggestionsForCorpus } from '../constants/suggestions'
-import { maxBytesForTier, temperatureForTier } from '../constants/generation'
+import { resolveGenerationParams } from '../constants/generation'
 import { useModelSettings } from '../hooks/useModelSettings'
 import {
   type ChatMessage,
@@ -38,14 +38,19 @@ export default function ChatPage() {
   const {
     corpusId,
     temperatureTier,
+    horizonTier,
+    beamWidthTier,
     maxBytesTier,
     setCorpusId,
     setTemperatureTier,
+    setHorizonTier,
+    setBeamWidthTier,
     setMaxBytesTier,
     applyServerDefaultCorpus,
   } = useModelSettings()
   const [pending, setPending] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
+  const [streamPreview, setStreamPreview] = useState('')
   const [pendingStartedAt, setPendingStartedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [infoOpen, setInfoOpen] = useState(() =>
@@ -110,6 +115,17 @@ export default function ChatPage() {
     [corpusId],
   )
 
+  const generationParams = useMemo(
+    () =>
+      resolveGenerationParams(
+        temperatureTier,
+        horizonTier,
+        beamWidthTier,
+        maxBytesTier,
+      ),
+    [temperatureTier, horizonTier, beamWidthTier, maxBytesTier],
+  )
+
   const showSuggestions =
     messages.length === 0 && draft.length === 0 && suggestions.length > 0
 
@@ -118,7 +134,7 @@ export default function ChatPage() {
     if (node) {
       node.scrollTop = node.scrollHeight
     }
-  }, [messages, isStreaming, draft])
+  }, [messages, isStreaming, streamPreview, draft])
 
   useEffect(() => {
     return () => {
@@ -150,18 +166,19 @@ export default function ChatPage() {
     setError(null)
     setPending(true)
     setIsStreaming(true)
+    setStreamPreview('')
     setPendingStartedAt(Date.now())
 
     try {
       await postChatStream(
         {
           corpus_id: corpusId,
-          temperature: temperatureForTier(temperatureTier),
-          max_bytes: maxBytesForTier(maxBytesTier),
+          ...generationParams,
           messages: nextMessages,
         },
         {
           onChunk: (content) => {
+            setStreamPreview('')
             setMessages((current) => {
               const last = current[current.length - 1]
               if (!last || last.role !== 'assistant') {
@@ -172,6 +189,9 @@ export default function ChatPage() {
                 { ...last, content: last.content + content },
               ]
             })
+          },
+          onPreview: (content) => {
+            setStreamPreview(content)
           },
           onDone: () => {
             // Meta is available for future UI (timing, byte counts).
@@ -191,6 +211,7 @@ export default function ChatPage() {
       }
       setPending(false)
       setIsStreaming(false)
+      setStreamPreview('')
       setPendingStartedAt(null)
     }
   }
@@ -200,6 +221,8 @@ export default function ChatPage() {
     syncModelSettingsToUrl(
       corpusId,
       temperatureTier,
+      horizonTier,
+      beamWidthTier,
       maxBytesTier,
       true,
     )
@@ -210,6 +233,8 @@ export default function ChatPage() {
     syncModelSettingsToUrl(
       corpusId,
       temperatureTier,
+      horizonTier,
+      beamWidthTier,
       maxBytesTier,
       false,
     )
@@ -234,26 +259,32 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <CorpusDrawer
-        corpusId={corpusId}
-        corpora={corpora}
-        disabled={pending}
-        onCorpusChange={setCorpusId}
-      />
+      <div className="settings-scroll min-h-0 shrink-0 overflow-y-auto overscroll-contain border-b border-zinc-800">
+        <CorpusDrawer
+          corpusId={corpusId}
+          corpora={corpora}
+          disabled={pending}
+          onCorpusChange={setCorpusId}
+        />
 
-      <ContextDrawer
-        corpusBytes={corpusByteLength}
-        userBytes={userContextBytes}
-        disabled={pending}
-      />
+        <ContextDrawer
+          corpusBytes={corpusByteLength}
+          userBytes={userContextBytes}
+          disabled={pending}
+        />
 
-      <GenerationDrawer
-        temperatureTier={temperatureTier}
-        maxBytesTier={maxBytesTier}
-        disabled={pending}
-        onTemperatureTierChange={setTemperatureTier}
-        onMaxBytesTierChange={setMaxBytesTier}
-      />
+        <GenerationDrawer
+          temperatureTier={temperatureTier}
+          horizonTier={horizonTier}
+          beamWidthTier={beamWidthTier}
+          maxBytesTier={maxBytesTier}
+          disabled={pending}
+          onTemperatureTierChange={setTemperatureTier}
+          onHorizonTierChange={setHorizonTier}
+          onBeamWidthTierChange={setBeamWidthTier}
+          onMaxBytesTierChange={setMaxBytesTier}
+        />
+      </div>
 
       <div
         ref={listRef}
@@ -262,6 +293,7 @@ export default function ChatPage() {
         <MessageList
           messages={messages}
           isStreaming={isStreaming}
+          streamPreview={streamPreview}
           pendingStartedAt={pendingStartedAt}
           corpusLabel={corpusLabel}
         />

@@ -32,6 +32,8 @@ export type ChatMeta = {
   corpus_id: string
   temperature: number
   max_bytes: number
+  horizon: number
+  beam_width: number
   context_bytes: number
   context_limit_bytes: number
 }
@@ -43,6 +45,7 @@ export type ChatResponse = {
 
 export type ChatStreamHandlers = {
   onChunk: (content: string) => void
+  onPreview: (content: string) => void
   onDone: (meta: ChatMeta) => void
 }
 
@@ -67,6 +70,8 @@ export async function postChat(payload: {
   corpus_id: string
   temperature: number
   max_bytes: number
+  horizon: number
+  beam_width: number
   messages: ChatMessage[]
 }): Promise<ChatResponse> {
   const { data } = await api.post<ChatResponse>('/chat', payload)
@@ -98,6 +103,8 @@ export async function postChatStream(
     corpus_id: string
     temperature: number
     max_bytes: number
+    horizon: number
+    beam_width: number
     messages: ChatMessage[]
   },
   handlers: ChatStreamHandlers,
@@ -153,6 +160,11 @@ export async function postChatStream(
           const content = payloadJson.content
           if (typeof content === 'string' && content.length > 0) {
             handlers.onChunk(content)
+          }
+        } else if (parsed.event === 'preview') {
+          const content = payloadJson.content
+          if (typeof content === 'string') {
+            handlers.onPreview(content)
           }
         } else if (parsed.event === 'done') {
           const meta = payloadJson.meta

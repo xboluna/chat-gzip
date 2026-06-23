@@ -7,8 +7,12 @@ from flask import Blueprint, Response, abort, current_app, jsonify, request, sen
 from app.services.corpora import (
     DEFAULT_MAX_BYTES,
     DEFAULT_TEMPERATURE,
+    MAX_BEAM_WIDTH,
     MAX_GENERATED_BYTES,
+    MAX_HORIZON,
+    MIN_BEAM_WIDTH,
     MIN_GENERATED_BYTES,
+    MIN_HORIZON,
     MIN_TEMPERATURE,
     corpus_catalog,
     get_corpus_spec,
@@ -104,12 +108,57 @@ def _parse_chat_payload() -> tuple[dict[str, Any] | None, tuple[Any, int] | None
             ),
         )
 
+    horizon = payload.get("horizon")
+    if horizon is not None:
+        try:
+            horizon = int(horizon)
+        except (TypeError, ValueError):
+            return None, (jsonify({"message": "horizon must be an integer"}), 400)
+        if horizon < MIN_HORIZON or horizon > MAX_HORIZON:
+            return (
+                None,
+                (
+                    jsonify(
+                        {
+                            "message": (
+                                f"horizon must be between {MIN_HORIZON} and {MAX_HORIZON}"
+                            )
+                        }
+                    ),
+                    400,
+                ),
+            )
+
+    beam_width = payload.get("beam_width")
+    if beam_width is not None:
+        try:
+            beam_width = int(beam_width)
+        except (TypeError, ValueError):
+            return None, (jsonify({"message": "beam_width must be an integer"}), 400)
+        if beam_width < MIN_BEAM_WIDTH or beam_width > MAX_BEAM_WIDTH:
+            return (
+                None,
+                (
+                    jsonify(
+                        {
+                            "message": (
+                                f"beam_width must be between {MIN_BEAM_WIDTH} "
+                                f"and {MAX_BEAM_WIDTH}"
+                            )
+                        }
+                    ),
+                    400,
+                ),
+            )
+
     return (
         {
             "corpus_id": corpus_id,
             "messages": messages,
             "temperature": temperature,
             "max_bytes": max_bytes,
+            "horizon": horizon,
+            "beam_width": beam_width,
         },
         None,
     )
@@ -136,6 +185,8 @@ def chat():
                     messages=parsed["messages"],
                     temperature=parsed["temperature"],
                     max_bytes=parsed["max_bytes"],
+                    horizon=parsed.get("horizon"),
+                    beam_width=parsed.get("beam_width"),
                 ):
                     event_type = event["type"]
                     yield f"event: {event_type}\ndata: {json.dumps(event)}\n\n"
@@ -162,6 +213,8 @@ def chat():
             messages=parsed["messages"],
             temperature=parsed["temperature"],
             max_bytes=parsed["max_bytes"],
+            horizon=parsed.get("horizon"),
+            beam_width=parsed.get("beam_width"),
         )
     except FileNotFoundError:
         return jsonify({"message": "corpus file missing on server"}), 500

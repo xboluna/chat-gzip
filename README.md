@@ -8,7 +8,7 @@ The header **"What's happening?"** button opens an explainer modal (`frontend/sr
 
 Before the first message, the chat footer shows **corpus-specific suggestion bubbles** (see `frontend/src/constants/suggestions.ts`). They hide as soon as the user types or sends a message.
 
-**Shareable model presets:** corpus, temperature, and output length are reflected in the URL query string (`?corpus=…&temperature=…&length=…`) so you can link to a specific configuration. Tier keys match the UI controls (e.g. `corpus=copypasta`, `temperature=ludicrous`, `length=chapter`). Omitted params use defaults.
+**Shareable model presets:** corpus, temperature, horizon, beam width, and output length are reflected in the URL query string (`?corpus=…&temperature=…&horizon=…&beam=…&length=…`). Tier keys match the UI controls (e.g. `corpus=copypasta`, `temperature=ludicrous`, `horizon=ludicrous`, `beam=wide`, `length=chapter`). Omitted params use defaults.
 
 **Shareable explainer link:** append `info=1` (e.g. `/?info=1`) to open the "What's happening?" modal on load. Closing the modal removes the param; changing model settings while the modal is open keeps it in the URL.
 
@@ -81,6 +81,8 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
   "corpus_id": "tiny-shakespeare",
   "temperature": 1.0,
   "max_bytes": 64,
+  "horizon": 16,
+  "beam_width": 16,
   "messages": [
     { "role": "user", "content": "MENENIUS:\n" }
   ]
@@ -89,7 +91,7 @@ Connect the repo to Vercel. The root `package.json` build script compiles the fr
 
 Messages are joined by newlines to form the gzip prompt. The last message must be from the user.
 
-`temperature` is clamped to `[0.2, 2.0]` (0.2 = low / compressible, 2.0 = ludicrous). `max_bytes` is the generation byte budget, clamped to `[32, 512]`; generation halts on null bytes or when the budget is exhausted.
+`temperature` is clamped to `[0.2, 2.0]` (0.2 = low / compressible, 2.0 = ludicrous). `max_bytes` is the generation byte budget, clamped to `[32, 512]`; generation halts on null bytes or when the budget is exhausted. `horizon` (span length, `[2, 64]`) and `beam_width` (`[4, 32]`) are independent beam-search knobs in the UI.
 
 **Response:**
 
@@ -102,6 +104,8 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
     "corpus_id": "tiny-shakespeare",
     "temperature": 1.0,
     "max_bytes": 64,
+    "horizon": 16,
+    "beam_width": 16,
     "context_bytes": 9,
     "context_limit_bytes": 32768
   }
@@ -110,15 +114,18 @@ Messages are joined by newlines to form the gzip prompt. The last message must b
 
 Generation is capped by `max_bytes` per request (default 64 / snippet) with null-byte stop halting. Lengths at or above 512 bytes may time out.
 
-Default generation tuning (`horizon=4`, `beam_width=8`, zlib level 6) favors interactive latency over maximum search depth. Corpora and alphabets are cached in memory after first load; the worker thread pool is warmed at app startup.
+Default generation tuning (`horizon=16`, `beam_width=16`, zlib level 6) balances coherent ~16-byte beam-search spans with interactive streaming. Corpora and alphabets are cached in memory after first load; the worker thread pool is warmed at app startup.
 
 ### `POST /api/chat?stream=1`
 
 Same request body as above. Returns **Server-Sent Events** (`text/event-stream`) with one beam-search span per `chunk` event:
 
 ```
+event: preview
+data: {"type":"preview","content":"Th"}
+
 event: chunk
-data: {"type":"chunk","content":"Thou "}
+data: {"type":"chunk","content":"Thou art "}
 
 event: done
 data: {"type":"done","meta":{"elapsed_ms":980,"bytes_generated":42,...}}
