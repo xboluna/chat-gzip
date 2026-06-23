@@ -47,11 +47,13 @@ const HORIZON_OPTIONS = Object.entries(HORIZON_TIERS).map(([key, bytes]) => ({
   key,
   label: key,
   color:
-    bytes >= 20
-      ? ('rainbow' as const)
-      : bytes >= 12
-        ? ('glow' as const)
-        : 'var(--pui-temp-medium)',
+    bytes >= 64
+      ? ('ludicrous' as const)
+      : bytes >= 32
+        ? ('rainbow' as const)
+        : bytes >= 16
+          ? ('glow' as const)
+          : 'var(--pui-temp-medium)',
 }))
 
 const BEAM_WIDTH_OPTIONS = Object.entries(BEAM_WIDTH_TIERS).map(

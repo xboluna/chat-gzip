@@ -18,11 +18,12 @@ export function temperatureForTier(tier: string): number {
 
 /** Span length per beam-search commit (bytes). */
 export const HORIZON_TIERS = {
-  swift: 4,
-  balanced: 8,
-  standard: 12,
-  long: 16,
-  max: 24,
+  swift: 8,
+  balanced: 12,
+  standard: 16,
+  long: 24,
+  max: 32,
+  ludicrous: 64,
 } as const
 
 export type HorizonTier = keyof typeof HORIZON_TIERS
